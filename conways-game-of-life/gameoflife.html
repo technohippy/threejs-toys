@@ -79,6 +79,21 @@ $(function() {
     scene.add(line);
   }
 
+  function initParticles() {
+    var geometry = new THREE.Geometry();
+    for (var i = 0; i < 20000; i++) {
+      var vector = new THREE.Vector3(
+        Math.random() * 2000 - 1000, 
+        Math.random() * 2000 - 1000, 
+        Math.random() * 2000 - 1000
+      );
+      geometry.vertices.push(new THREE.Vertex(vector));
+    }
+    var material = new THREE.ParticleBasicMaterial({size:1});
+    var particles = new THREE.ParticleSystem(geometry, material);
+    scene.add(particles);
+  }
+
   function initControls() {
     controls.lat = 0;
     controls.lon = -85;
@@ -152,6 +167,7 @@ $(function() {
 
     initCells();
     initFrame();
+    initParticles();
 
     renderer = new THREE.WebGLRenderer();
     renderer.sortObjects = false;
