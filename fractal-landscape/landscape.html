@@ -138,6 +138,7 @@ $(function() {
     document.body.appendChild(container);
 
     scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0xccccff, 0.003);
 
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
     //camera.position.set(size / 2, size / 2, size * 1.5);
