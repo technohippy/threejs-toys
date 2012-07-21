@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Fractal Landscape</title>
+    <meta charset="utf-8">
+    <style>
+    body {
+      background-image:url(Skies0329_4_S.jpg);
+      background-repeat:no-repeat;
+      background-size:100% 100%;
+      padding:0;
+      margin:0;
+    }
+    </style>
+    <script src="js/Three.js"></script>
+    <script src="js/Detector.js"></script>
+    <script src="js/RequestAnimationFrame.js"></script>
+    <script src="js/jquery-1.7.1.min.js"></script>
+    <script>
+$(function() {
+  function logHightMap(hs) {
+    var log = '';
+    for (var y = 0; y < hs.length; y++) {
+      for (var x = 0; x < hs[y].length; x++) {
+        var h = hs[y][x];
+        log += Math.floor(h * 100) + ' ';
+      }
+      log += "\n";
+    }
+    console.log(log);
+  }
+
+  function rand(range) {
+    return range * (Math.random() - 0.5);
+  }
+
+  var hights = [];
+  var size = 256;
+  //var size = 512;
+  for (var y = 0; y <= size; y++) {
+    var line = [];
+    for (var x = 0; x <= size; x++) {
+      line.push(0);
+    }
+    hights.push(line);
+  }
+  hights[0][0] = rand(size);
+  hights[0][size] = rand(size);
+  hights[size][0] = rand(size) + size / 3;
+  hights[size][size] = rand(size) + size / 3;
+
+  var u = size;
+  do {
+    u /= 2;
+    for (var y = 0; y <= size; y += u * 2) {
+      for (var x = u; x <= size; x += u * 2) {
+        hights[y][x] = (hights[y][x-u] + hights[y][x+u]) / 2 + rand(u);
+      }
+    }
+    for (var y = u; y <= size; y += u * 2) {
+      for (var x = 0; x <= size; x += u * 2) {
+        hights[y][x] = (hights[y-u][x] + hights[y+u][x]) / 2 + rand(u);
+      }
+    }
+    for (var y = u; y <= size; y += u * 2) {
+      for (var x = u; x <= size; x += u * 2) {
+        hights[y][x] = (hights[y][x-u] + hights[y][x+u] + hights[y-u][x] + 
+          hights[y+u][x]) / 4 + rand(u);
+      }
+    }
+  } while (1 < u);
+
+  var container;
+  var camera, scene, renderer;
+  var controls;
+  var clock = new THREE.Clock();
+
+  initScene();
+  animate();
+
+  function initTerrain() {
+    var geometry = new THREE.Geometry();
+    for (var y = 0; y < hights.length; y++) {
+      for (var x = 0; x < hights[y].length; x++) {
+        //geometry.vertices.push(new THREE.Vertex(new THREE.Vector3(x, y, hights[y][x])));
+        //geometry.vertices.push(new THREE.Vertex(new THREE.Vector3(hights[y][x], x, y)));
+        //geometry.vertices.push(new THREE.Vertex(new THREE.Vector3(y, x, hights[y][x])));
+        geometry.vertices.push(new THREE.Vertex(new THREE.Vector3(y, hights[y][x], x)));
+      }
+    }
+
+    for (var y = 0; y < hights.length - 1; y++) {
+      for (var x = 0; x < hights[y].length - 1; x++) {
+        geometry.faces.push(new THREE.Face3(
+          x + y * hights.length, 
+          x + 1 + y * hights.length, 
+          x + (y + 1) * hights.length
+        ));
+        geometry.faceVertexUvs[0].push([
+          new THREE.UV(x/size, y/size),
+          new THREE.UV((x+1)/size, y/size),
+          new THREE.UV(x/size, (y+1)/size)
+        ]);
+      }
+    }
+    for (var y = 1; y < hights.length; y++) {
+      for (var x = 1; x < hights[y].length; x++) {
+        geometry.faces.push(new THREE.Face3(
+          x + y * hights.length, 
+          x - 1 + y * hights.length, 
+          x + (y - 1) * hights.length
+        ));
+        geometry.faceVertexUvs[0].push([
+          new THREE.UV(x/size, y/size),
+          new THREE.UV((x-1)/size, y/size),
+          new THREE.UV(x/size, (y-1)/size)
+        ]);
+      }
+    }
+    geometry.computeFaceNormals();
+
+    var texture = THREE.ImageUtils.loadTexture('Grass0133_9_S.jpg');
+    var material = new THREE.MeshLambertMaterial({map:texture});
+    //var material = new THREE.MeshLambertMaterial({color:0x339900});
+    var mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+  }
+
+  function initControls() {
+    controls.lat = 0;
+    controls.lon = 0;
+    controls.phi = 0;
+    controls.theta = 0;
+  }
+
+  function initScene() {
+    container = document.createElement('div');
+    document.body.appendChild(container);
+
+    scene = new THREE.Scene();
+
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
+    //camera.position.set(size / 2, size / 2, size * 1.5);
+    camera.position.set(size * 0.5, size * 0.5, size * 0.5);
+    camera.lookAt(new THREE.Vector3(size / 2, size / 2, size * 0.2));
+    scene.add(camera);
+
+    controls = new THREE.FirstPersonControls(camera);
+    controls.movementSpeed = size / 2;
+    //controls.lookSpeed = 0.05;
+    controls.lookSpeed = 0;
+    initControls();
+
+    var light = new THREE.DirectionalLight(0xffffff, 2);
+    light.position.set(1, 1, 1).normalize();
+    scene.add(light);
+
+    light = new THREE.DirectionalLight(0xffffff);
+    light.position.set(-1, -1, -1).normalize();
+    scene.add(light);
+
+    scene.add(new THREE.AmbientLight(0xffffff));
+
+    initTerrain();
+
+    renderer = new THREE.WebGLRenderer();
+    renderer.sortObjects = false;
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    container.appendChild(renderer.domElement);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    render();
+  }
+
+  //var time = 0;
+  function render() {
+    controls.update(clock.getDelta());
+    //var angle = (time++) / 360 * Math.PI;
+    //camera.position.set(size / 2 + size * Math.sin(angle), size / 2 + size * Math.cos(angle), size * 1.5);
+    //camera.lookAt(new THREE.Vector3(0, 0, 0));
+    renderer.render(scene, camera);
+  }
+});
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
