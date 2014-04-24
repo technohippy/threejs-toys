@@ -1,10 +1,8 @@
-// texture: tree.jpg
-// http://fc00.deviantart.net/fs71/i/2011/187/4/7/tileable_tree_bark_texture_by_ftourini-d3l69hz.jpg
-
 function Tree() {
   this.root = new Branch();
-  this.root.length = 0;
-this.root.length = 0.1; // TODO
+  this.root.length = 0.3;
+  this.root.topBottomRatio = 0.8;
+  this.root.setBottomDiameter(0.05);
 }
 
 Tree.prototype.connect = function(branch) {
@@ -38,7 +36,13 @@ function Branch() {
   this.topDiameter = 0;
   this.parent = null;
   this.children = [];
+  this.topBottomRatio = 1;
 }
+
+Branch.prototype.setBottomDiameter = function(diameter) {
+  this.bottomDiameter = diameter;
+  this.topDiameter = diameter * this.topBottomRatio;
+};
 
 Branch.prototype.getTopPosition = function() {
 // TODO
@@ -49,6 +53,7 @@ Branch.prototype.getTopPosition = function() {
 
 Branch.prototype.connect = function(branch) {
   branch.bottomPosition.copy(this.getTopPosition());
+  branch.setBottomDiameter(this.topDiameter);
   this.children.push(branch);
   branch.parent = this;
 }
@@ -75,6 +80,11 @@ Branch.prototype.addMeshTo = function(group, material) {
   if (this.parent) {
     branch3D.position.copy(this.parent.getTopPosition());
     branch3D.translate(this.length/2, this.parent.direction);
+  }
+  else {
+    // root
+    branch3D.position.copy(this.bottomPosition);
+    branch3D.translate(this.length/2, this.direction);
   }
   group.add(branch3D);
 
@@ -116,6 +126,7 @@ Branch.prototype.clone = function(withChildren) {
   clone.length = this.length;
   clone.bottomDiameter = this.bottomDiameter;
   clone.topDiameter = this.topDiameter;
+  clone.topBottomRatio = this.topBottomRatio;
   clone.children = [];
   if (withChildren) {
     for (var i = 0; i < this.children.length; i++) {
@@ -130,9 +141,6 @@ function TreeInterpretor(tree) {
   this.tree = tree || new Tree();
   this.currentBranch = this.tree.root;
   this.nextBranch = this.currentBranch.clone();
-this.nextBranch.length = 0.2;
-this.nextBranch.bottomDiameter = 0.01;
-this.nextBranch.topDiameter = 0.01;
   this.stack = [];
 }
 
@@ -148,19 +156,25 @@ TreeInterpretor.prototype.interprete = function(c) {
     this.nextBranch = this.currentBranch.clone();
   }
   else if (c == '+') {
-    this.nextBranch.rotateZ(THREE.Math.degToRad(15));
+    this.nextBranch.rotateZ(THREE.Math.degToRad(10));
   }
   else if (c == '-') {
-    this.nextBranch.rotateZ(THREE.Math.degToRad(-15));
+    this.nextBranch.rotateZ(THREE.Math.degToRad(-10));
+  }
+  else if (c == '*') {
+    this.nextBranch.rotateY(THREE.Math.degToRad(15));
+  }
+  else if (c == '/') {
+    this.nextBranch.rotateY(THREE.Math.degToRad(-15));
   }
   else if (c == 'F') {
     this.currentBranch.connect(this.nextBranch);
     this.currentBranch = this.nextBranch;
     this.nextBranch = this.nextBranch.clone();
     /*
-this.nextBranch.bottomDiameter *= 0.95;
-this.nextBranch.topDiameter *= 0.95;
-this.nextBranch.length *= 0.95;
+this.nextBranch.bottomDiameter *= 0.6;
+this.nextBranch.topDiameter *= 0.6;
+this.nextBranch.length *= 0.8;
 */
   }
 };
