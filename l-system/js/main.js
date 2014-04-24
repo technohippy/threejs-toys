@@ -23,7 +23,7 @@ var tree = new Tree();
 var l = new LSystem('F');
 l.addRule('F', 'F[+F-F-F]F[--F+F+F]');
 l.interpretor = new TreeInterpretor(tree);
-l.step(1);
+l.step(2);
 l.eval();
 var group = tree.getGroup();
 

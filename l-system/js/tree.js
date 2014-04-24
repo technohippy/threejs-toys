@@ -128,34 +128,39 @@ Branch.prototype.clone = function(withChildren) {
 
 function TreeInterpretor(tree) {
   this.tree = tree || new Tree();
-  this.currentBranch = this.tree.root.clone();
-// TODO
-this.currentBranch.length = 0.3;
-this.currentBranch.bottomDiameter = 0.02;
-this.currentBranch.topDiameter = 0.02;
-  this.stack = [this.tree.root];
+  this.currentBranch = this.tree.root;
+  this.nextBranch = this.currentBranch.clone();
+this.nextBranch.length = 0.2;
+this.nextBranch.bottomDiameter = 0.01;
+this.nextBranch.topDiameter = 0.01;
+  this.stack = [];
 }
 
 TreeInterpretor.prototype.interprete = function(c) {
   if (c == '[') {
     this.stack.push(this.currentBranch);
-    this.currentBranch = this.currentBranch.clone();
   }
   else if (c == ']') {
     if (this.stack.length == 0) {
       throw 'nothing to pop';
     }
     this.currentBranch = this.stack.pop();
+    this.nextBranch = this.currentBranch.clone();
   }
   else if (c == '+') {
-    this.currentBranch.rotateZ(THREE.Math.degToRad(15));
+    this.nextBranch.rotateZ(THREE.Math.degToRad(15));
   }
   else if (c == '-') {
-    this.currentBranch.rotateZ(THREE.Math.degToRad(-15));
+    this.nextBranch.rotateZ(THREE.Math.degToRad(-15));
   }
   else if (c == 'F') {
-    this.stack[this.stack.length - 1].connect(this.currentBranch);
-    var nextBranch = this.currentBranch.clone();
-    this.currentBranch = nextBranch;
+    this.currentBranch.connect(this.nextBranch);
+    this.currentBranch = this.nextBranch;
+    this.nextBranch = this.nextBranch.clone();
+    /*
+this.nextBranch.bottomDiameter *= 0.95;
+this.nextBranch.topDiameter *= 0.95;
+this.nextBranch.length *= 0.95;
+*/
   }
 };
