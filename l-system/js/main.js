@@ -1,5 +1,8 @@
 if(!Detector.webgl) Detector.addGetWebGLMessage();
 
+var PARAMS = Utils.getParams();
+var DEBUG = PARAMS['debug'];
+
 var renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.shadowMapEnabled = true;
 renderer.shadowMapSoft = true;
@@ -21,7 +24,7 @@ var light = new THREE.DirectionalLight(0xffffff);
 light.position = new THREE.Vector3(2, 2, 2);
 light.castShadow = true;
 light.shadowBias = 0.0001;
-//light.shadowCameraVisible = true;
+if (DEBUG) light.shadowCameraVisible = true;
 
 light.shadowCameraNear = 1;
 light.shadowCameraFar = 8;
@@ -39,10 +42,24 @@ var ambient = new THREE.AmbientLight(0x333333);
 scene.add(ambient);
 
 var tree = new Tree();
-var l = new LSystem('F');
-//l.addRule('F', 'F[+F-F-F]F[--F+F+F]');
-//l.addRule('F', 'F[+F-***F-F]////F[--F*****++F+F]');
-l.addRule('F', window.location.search || 'F[+F-F-F]F[--F+F+F]');
+var l = new LSystem();
+for (var key in PARAMS) {
+  if (PARAMS.hasOwnProperty(key)) {
+    var val = PARAMS[key];
+    if (key.match(/^rule-/)) {
+      l.addRule(key.substring('rule-'.length), val);
+    }
+    else if (key === 'init') {
+      l.value = val;
+    }
+  }
+}
+if (!l.value) {
+  l.value = 'F';
+}
+if (Object.getOwnPropertyNames(l.rules).length === 0) {
+  l.addRule('F', 'F[+F-F-F]F[--F+F+F]');
+}
 l.interpretor = new TreeInterpretor(tree);
 l.step(3);
 l.eval();
@@ -68,7 +85,6 @@ cubemap.format = THREE.RGBFormat;
 var shader = THREE.ShaderLib['cube']; // init cube shader from built-in lib
 shader.uniforms['tCube'].value = cubemap; // apply textures to shader
 
-// create shader material
 var skyBoxMaterial = new THREE.ShaderMaterial( {
   fragmentShader: shader.fragmentShader,
   vertexShader: shader.vertexShader,
@@ -77,7 +93,6 @@ var skyBoxMaterial = new THREE.ShaderMaterial( {
   side: THREE.BackSide
 });
 
-// create skybox mesh
 var skybox = new THREE.Mesh(
   new THREE.CubeGeometry(1000, 1000, 1000),
   skyBoxMaterial
@@ -100,7 +115,7 @@ ground.castShadow = false;
 ground.receiveShadow = true;
 scene.add(ground);
 
-scene.add(new THREE.AxisHelper(5));
+if (DEBUG) scene.add(new THREE.AxisHelper(5));
 
 /*
 var controls = new THREE.FirstPersonControls(camera);
@@ -127,11 +142,13 @@ camera.lookAt(new THREE.Vector3(0, cameraHeight, 0));
 };
 render();
 
-var stats = new Stats();
-stats.domElement.style.position = 'absolute';
-stats.domElement.style.top = '0px';
-stats.domElement.style.zIndex = 100;
-document.body.appendChild(stats.domElement);
+if (DEBUG) {
+  var stats = new Stats();
+  stats.domElement.style.position = 'absolute';
+  stats.domElement.style.top = '0px';
+  stats.domElement.style.zIndex = 100;
+  document.body.appendChild(stats.domElement);
+}
 
 window.addEventListener('resize', function() {
   renderer.setSize(window.innerWidth, window.innerHeight);
