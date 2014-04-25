@@ -1,13 +1,16 @@
 if(!Detector.webgl) Detector.addGetWebGLMessage();
 
 var renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.shadowMapEnabled = true;
+renderer.shadowMapSoft = true;
+renderer.shadowMapType = THREE.PCFShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0xffffff, 1);
 document.body.appendChild(renderer.domElement);
 
 var scene = new THREE.Scene();
 
-var cameraHeight = 1;
+var cameraHeight = 0.7;
 var cameraDistance = 3;
 var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight);
 camera.position = new THREE.Vector3(0, cameraHeight, cameraDistance);
@@ -15,7 +18,21 @@ camera.lookAt(new THREE.Vector3(0, cameraHeight, 0));
 scene.add(camera);
 
 var light = new THREE.DirectionalLight(0xffffff);
-light.position = new THREE.Vector3(0.577, 0.577, 0.577);
+light.position = new THREE.Vector3(2, 2, 2);
+light.castShadow = true;
+light.shadowBias = 0.0001;
+//light.shadowCameraVisible = true;
+
+light.shadowCameraNear = 1;
+light.shadowCameraFar = 8;
+light.shadowCameraLeft = -5;
+light.shadowCameraRight = 5;
+light.shadowCameraTop = 5;
+light.shadowCameraBottom = -5;
+light.shadowMapWidth = 1024;
+light.shadowMapHeight = 1024;
+
+
 scene.add(light);
 
 var ambient = new THREE.AmbientLight(0x333333);
@@ -27,13 +44,15 @@ var l = new LSystem('F');
 //l.addRule('F', 'F[+F-***F-F]////F[--F*****++F+F]');
 l.addRule('F', window.location.search || 'F[+F-F-F]F[--F+F+F]');
 l.interpretor = new TreeInterpretor(tree);
-l.step(2);
+l.step(3);
 l.eval();
-var group = tree.getGroup();
+var treeMesh = tree.getMesh({
+  castShadow: true,
+  receiveShadow: false
+});
 
-scene.add(group);
+scene.add(treeMesh);
 
-/*
 var urls = [
   'images/cube01.jpg',
   'images/cube02.jpg',
@@ -65,7 +84,21 @@ var skybox = new THREE.Mesh(
 );
 
 scene.add(skybox);
-*/
+
+var groundTexture = THREE.ImageUtils.loadTexture('images/cube04.jpg');
+var groundGeometry = new THREE.PlaneGeometry(1000, 1000, 50, 50);
+var groundMaterial = new THREE.MeshPhongMaterial({
+  color: 0xffffff,
+  map: groundTexture, 
+  bumpMap: groundTexture, 
+  bumpScale: 0.01
+});
+var ground = new THREE.Mesh(groundGeometry, groundMaterial);
+ground.rotation.x = THREE.Math.degToRad(-90);
+//ground.position.y = -1;
+ground.castShadow = false;
+ground.receiveShadow = true;
+scene.add(ground);
 
 scene.add(new THREE.AxisHelper(5));
 
@@ -86,8 +119,8 @@ function render() {
   requestAnimationFrame(render);
 
 //  controls.update();
-var rad = THREE.Math.degToRad((+new Date - baseTime) / 10 % 360);
-camera.position.set(cameraDistance * Math.sin(rad), cameraHeight + Math.sin(rad), cameraDistance * Math.cos(rad));
+var rad = THREE.Math.degToRad((+new Date - baseTime) / 50 % 360);
+camera.position.set(cameraDistance * Math.sin(rad), cameraHeight + 0.5 * Math.sin(rad), cameraDistance * Math.cos(rad));
 camera.lookAt(new THREE.Vector3(0, cameraHeight, 0));
 
   renderer.render(scene, camera);

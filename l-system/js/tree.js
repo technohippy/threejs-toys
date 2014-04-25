@@ -9,19 +9,19 @@ Tree.prototype.connect = function(branch) {
   this.root.connect(branch);
 };
 
-Tree.prototype.getGroup = function() {
+Tree.prototype.getMesh = function(opts) {
   var group = new THREE.Object3D();
 
   var texture = THREE.ImageUtils.loadTexture('images/tree.jpg');
   var material = new THREE.MeshPhongMaterial({
     color: 0xffffff,
-//    ambient: 0x333333,
+    ambient: 0x333333,
     map: texture, 
     bumpMap: texture, 
     bumpScale: 0.01
   });
 
-  this.root.addMeshTo(group, material);
+  this.root.addMeshTo(group, material, opts || {});
   return group;
 };
 
@@ -57,26 +57,37 @@ Branch.prototype.getTopPosition = function() {
 
 Branch.prototype.connect = function(branch) {
   branch.bottomPosition.copy(this.getTopPosition());
-  branch.setBottomDiameter(this.topDiameter);
   this.children.push(branch);
   branch.parent = this;
 }
 
-Branch.prototype.addMeshTo = function(group, material) {
+Branch.prototype.addMeshTo = function(group, material, opts) {
   var sphereGeometry = new THREE.SphereGeometry(this.bottomDiameter, 32, 16);
   var sphereMesh = new THREE.Mesh(sphereGeometry, material);
   sphereMesh.position.y = -this.length / 2;
-/*
-  var sphereGeometry = new THREE.SphereGeometry(this.topDiameter, 32, 16);
-  var sphereMesh = new THREE.Mesh(sphereGeometry, material);
-  sphereMesh.position.y = this.length / 2;
-*/
 
   var cylinderGeometry = new THREE.CylinderGeometry(this.topDiameter, this.bottomDiameter, this.length, 32);
+/*
+for (var i = 0; i < cylinderGeometry.vertices.length; i++) {
+  var v = cylinderGeometry.vertices[i];
+  v.x += (Math.random() - 0.5) * 0.01;
+  v.z += (Math.random() - 0.5) * 0.01;
+}
+console.log(32 * 16, cylinderGeometry.vertices.length);
+*/
   var cylinderMesh = new THREE.Mesh(cylinderGeometry, material);
 
+  if (opts.castShadow) {
+    sphereMesh.castShadow = true;
+    cylinderMesh.castShadow = true;
+  }
+  if (opts.receiveShadow) {
+    sphereMesh.receiveShadow = false;
+    cylinderMesh.receiveShadow = false;
+  }
+
   var branch3D = new THREE.Object3D();
-  branch3D.add(sphereMesh);
+  if (!this.isRoot()) branch3D.add(sphereMesh);
   branch3D.add(cylinderMesh);
 
   var dir = new THREE.Vector3();
@@ -96,7 +107,7 @@ Branch.prototype.addMeshTo = function(group, material) {
   group.add(branch3D);
 
   for (var i = 0; i < this.children.length; i++) {
-    this.children[i].addMeshTo(group, material);
+    this.children[i].addMeshTo(group, material, opts);
   }
 
   return group;
@@ -148,12 +159,13 @@ Branch.prototype.grow = function() {
   var branch = this.clone();
   branch.setBottomDiameter(this.topDiameter);
   branch.length *= 0.9;
+  return branch;
 };
 
 function TreeInterpretor(tree) {
   this.tree = tree || new Tree();
   this.currentBranch = this.tree.root;
-  this.nextBranch = this.currentBranch.clone();
+  this.nextBranch = this.currentBranch.grow();
   this.stack = [];
 }
 
@@ -166,8 +178,7 @@ TreeInterpretor.prototype.interprete = function(c) {
       throw 'nothing to pop';
     }
     this.currentBranch = this.stack.pop();
-    this.nextBranch = this.currentBranch.clone();
-this.nextBranch.length *= 0.9;
+    this.nextBranch = this.currentBranch.grow();
   }
   else if (c == '+') {
     this.nextBranch.rotateZ(THREE.Math.degToRad(20));
@@ -184,7 +195,6 @@ this.nextBranch.length *= 0.9;
   else if (c == 'F') {
     this.currentBranch.connect(this.nextBranch);
     this.currentBranch = this.nextBranch;
-    this.nextBranch = this.nextBranch.clone();
-this.nextBranch.length *= 0.9;
+    this.nextBranch = this.nextBranch.grow();
   }
 };
