@@ -106,7 +106,7 @@ var groundMaterial = new THREE.MeshPhongMaterial({
   color: 0xffffff,
   map: groundTexture, 
   bumpMap: groundTexture, 
-  bumpScale: 0.01
+  bumpScale: 0.1
 });
 var ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.rotation.x = THREE.Math.degToRad(-90);

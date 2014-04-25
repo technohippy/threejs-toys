@@ -68,6 +68,7 @@ Branch.prototype.addMeshTo = function(group, material, opts) {
 
   var cylinderGeometry = new THREE.CylinderGeometry(this.topDiameter, this.bottomDiameter, this.length, 32);
 /*
+// BUMP
 for (var i = 0; i < cylinderGeometry.vertices.length; i++) {
   var v = cylinderGeometry.vertices[i];
   v.x += (Math.random() - 0.5) * 0.01;
