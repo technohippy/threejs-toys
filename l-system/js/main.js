@@ -2,17 +2,19 @@ if(!Detector.webgl) Detector.addGetWebGLMessage();
 
 var renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColorHex(0x000000, 1);
+renderer.setClearColor(0xffffff, 1);
 document.body.appendChild(renderer.domElement);
 
 var scene = new THREE.Scene();
 
+var cameraHeight = 1;
+var cameraDistance = 3;
 var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight);
-camera.position = new THREE.Vector3(0, 8, 8);
-camera.lookAt(new THREE.Vector3(0, 8, -8));
+camera.position = new THREE.Vector3(0, cameraHeight, cameraDistance);
+camera.lookAt(new THREE.Vector3(0, cameraHeight, 0));
 scene.add(camera);
 
-var light = new THREE.DirectionalLight(0xcccccc);
+var light = new THREE.DirectionalLight(0xffffff);
 light.position = new THREE.Vector3(0.577, 0.577, 0.577);
 scene.add(light);
 
@@ -21,9 +23,11 @@ scene.add(ambient);
 
 var tree = new Tree();
 var l = new LSystem('F');
-l.addRule('F', 'F[+F-F-F]F[--F+F+F]');
+//l.addRule('F', 'F[+F-F-F]F[--F+F+F]');
+//l.addRule('F', 'F[+F-***F-F]////F[--F*****++F+F]');
+l.addRule('F', window.location.search || 'F[+F-F-F]F[--F+F+F]');
 l.interpretor = new TreeInterpretor(tree);
-l.step(3);
+l.step(2);
 l.eval();
 var group = tree.getGroup();
 
@@ -65,13 +69,26 @@ scene.add(skybox);
 
 scene.add(new THREE.AxisHelper(5));
 
+/*
+var controls = new THREE.FirstPersonControls(camera);
+controls.movementSpeed = 10;
+controls.lookSpeed = 0.05
+controls.lon = -85;
+controls.center = new THREE.Vector3(0, 0, 0);
+*/
+/*
 var controls = new THREE.OrbitControls(camera);
 controls.center = new THREE.Vector3(0, 0, 0);
+*/
 
+var baseTime = +new Date;
 function render() {
   requestAnimationFrame(render);
 
-  controls.update();
+//  controls.update();
+var rad = THREE.Math.degToRad((+new Date - baseTime) / 10 % 360);
+camera.position.set(cameraDistance * Math.sin(rad), cameraHeight + Math.sin(rad), cameraDistance * Math.cos(rad));
+camera.lookAt(new THREE.Vector3(0, cameraHeight, 0));
 
   renderer.render(scene, camera);
 };
