@@ -36,6 +36,7 @@ function Branch() {
   this.topDiameter = 0;
   this.parent = null;
   this.children = [];
+  this.leaves = [];
   this.topBottomRatio = 1;
 }
 
@@ -83,8 +84,8 @@ console.log(32 * 16, cylinderGeometry.vertices.length);
     cylinderMesh.castShadow = true;
   }
   if (opts.receiveShadow) {
-    sphereMesh.receiveShadow = false;
-    cylinderMesh.receiveShadow = false;
+    sphereMesh.receiveShadow = true;
+    cylinderMesh.receiveShadow = true;
   }
 
   var branch3D = new THREE.Object3D();
@@ -109,6 +110,10 @@ console.log(32 * 16, cylinderGeometry.vertices.length);
 
   for (var i = 0; i < this.children.length; i++) {
     this.children[i].addMeshTo(group, material, opts);
+  }
+
+  for (var j = 0; j < this.leaves.length; j++) {
+    this.leaves[j].addMeshTo(group, opts);
   }
 
   return group;
@@ -153,6 +158,11 @@ Branch.prototype.clone = function(withChildren) {
       clone.children.push(child.clone(true));
     }
   }
+  clone.leaves = [];
+  for (var j = 0; j < this.leaves.length; j++) {
+    var leaf = this.leaves[j];
+    clone.leaves.push(leaf.clone());
+  }
   return clone;
 };
 
@@ -161,6 +171,68 @@ Branch.prototype.grow = function() {
   branch.setBottomDiameter(this.topDiameter);
   branch.length *= 0.9;
   return branch;
+};
+
+Branch.prototype.growLeaf = function() {
+  this.leaves.push(new Leaf(this));
+};
+
+function Leaf(branch) {
+  this.branch = branch;
+  this.material = new THREE.MeshPhongMaterial({
+    color: 0xffffff,
+    transparent: true,
+    ambient: 0xffffff,
+    map: THREE.ImageUtils.loadTexture('images/leaf.png'),
+    side: THREE.DoubleSide
+  });
+}
+
+Leaf.prototype.addMeshTo = function(group, opts) {
+  var leafWidth = 0.01;
+  var leafHeight = 0.03;
+
+  var leafGeometry = new THREE.PlaneGeometry(leafWidth, leafHeight, 1, 1);
+  var leafMesh = new THREE.Mesh(leafGeometry, this.material);
+  if (opts.castShadow) {
+    leafMesh.castShadow = true;
+  }
+  if (opts.receiveShadow) {
+    leafMesh.receiveShadow = true;
+  }
+
+  var up = new THREE.Vector3(0, 0, 1).normalize();
+  var normalAxis = this.branch.axisY.clone();
+  normalAxis.y = 0;
+  normalAxis.normalize();
+  var dir = new THREE.Vector3();
+  dir.crossVectors(up, normalAxis).normalize();
+  var dot = up.dot(normalAxis);
+  var rad = Math.acos(dot);
+  var m1 = new THREE.Matrix4().makeRotationFromQuaternion(
+    new THREE.Quaternion().setFromAxisAngle(dir, rad)
+  );
+  //leafMesh.setRotationFromMatrix(m1);
+  
+  // TODO: ??
+  var normalAxis2 = this.branch.axisZ.clone();
+  normalAxis2.y = 0;
+  normalAxis2.normalize();
+  var m2 = new THREE.Matrix4().makeRotationFromQuaternion(
+    new THREE.Quaternion().setFromAxisAngle(normalAxis2, THREE.Math.degToRad(Math.random() * 10 - 35))
+  );
+  leafMesh.setRotationFromMatrix(
+    new THREE.Matrix4().multiplyMatrices(m2, m1)
+  );
+
+  leafMesh.position.copy(this.branch.getTopPosition());
+  leafMesh.position.y -= leafHeight / 2 * 0.8;
+  group.add(leafMesh);
+  return group;
+};
+
+Leaf.prototype.clone = function() {
+  return new Leaf(this.branch);
 };
 
 function TreeInterpretor(tree) {
@@ -197,5 +269,8 @@ TreeInterpretor.prototype.interprete = function(c) {
     this.currentBranch.connect(this.nextBranch);
     this.currentBranch = this.nextBranch;
     this.nextBranch = this.nextBranch.grow();
+  }
+  else if (c == 'L') {
+    this.currentBranch.growLeaf();
   }
 };

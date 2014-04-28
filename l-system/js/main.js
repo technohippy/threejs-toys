@@ -20,6 +20,10 @@ camera.position = new THREE.Vector3(0, cameraHeight, cameraDistance);
 camera.lookAt(new THREE.Vector3(0, cameraHeight, 0));
 scene.add(camera);
 
+var sunLight = new THREE.SpotLight(0xffffff);
+sunLight.position = new THREE.Vector3(4, 4, 4);
+scene.add(sunLight);
+
 var light = new THREE.DirectionalLight(0xffffff);
 light.position = new THREE.Vector3(2, 2, 2);
 light.castShadow = true;
@@ -34,7 +38,6 @@ light.shadowCameraTop = 5;
 light.shadowCameraBottom = -5;
 light.shadowMapWidth = 1024;
 light.shadowMapHeight = 1024;
-
 
 scene.add(light);
 
@@ -100,6 +103,7 @@ var skybox = new THREE.Mesh(
 
 scene.add(skybox);
 
+// TODO: http://yomotsu.net/blog/2012/12/01/create-terrain-with-threejs.html
 var groundTexture = THREE.ImageUtils.loadTexture('images/cube04.jpg');
 var groundGeometry = new THREE.PlaneGeometry(1000, 1000, 50, 50);
 var groundMaterial = new THREE.MeshPhongMaterial({
@@ -110,10 +114,11 @@ var groundMaterial = new THREE.MeshPhongMaterial({
 });
 var ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.rotation.x = THREE.Math.degToRad(-90);
-//ground.position.y = -1;
 ground.castShadow = false;
 ground.receiveShadow = true;
 scene.add(ground);
+
+scene.fog = new THREE.FogExp2(0xdddddd, 0.01);
 
 if (DEBUG) scene.add(new THREE.AxisHelper(5));
 
