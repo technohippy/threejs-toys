@@ -5,23 +5,34 @@ function Tree() {
   this.root.setBottomDiameter(0.05);
 }
 
+Tree.textures = {
+  branch: THREE.ImageUtils.loadTexture('images/tree.jpg'),
+  leaf: THREE.ImageUtils.loadTexture('images/leaf.png')
+};
+Tree.materials = {
+  branch: new THREE.MeshPhongMaterial({
+    color: 0xffffff,
+    ambient: 0x333333,
+    map: Tree.textures.branch,
+    bumpMap: Tree.textures.branch,
+    bumpScale: 0.01
+  }),
+  leaf: new THREE.MeshPhongMaterial({
+    color: 0xffffff,
+    transparent: true,
+    ambient: 0xffffff,
+    map: Tree.textures.leaf,
+    side: THREE.DoubleSide
+  })
+};
+
 Tree.prototype.connect = function(branch) {
   this.root.connect(branch);
 };
 
 Tree.prototype.getMesh = function(opts) {
   var group = new THREE.Object3D();
-
-  var texture = THREE.ImageUtils.loadTexture('images/tree.jpg');
-  var material = new THREE.MeshPhongMaterial({
-    color: 0xffffff,
-    ambient: 0x333333,
-    map: texture, 
-    bumpMap: texture, 
-    bumpScale: 0.01
-  });
-
-  this.root.addMeshTo(group, material, opts || {});
+  this.root.addMeshTo(group, opts || {});
   return group;
 };
 
@@ -62,9 +73,9 @@ Branch.prototype.connect = function(branch) {
   branch.parent = this;
 }
 
-Branch.prototype.addMeshTo = function(group, material, opts) {
+Branch.prototype.addMeshTo = function(group, opts) {
   var sphereGeometry = new THREE.SphereGeometry(this.bottomDiameter, 32, 16);
-  var sphereMesh = new THREE.Mesh(sphereGeometry, material);
+  var sphereMesh = new THREE.Mesh(sphereGeometry, Tree.materials.branch);
   sphereMesh.position.y = -this.length / 2;
 
   var cylinderGeometry = new THREE.CylinderGeometry(this.topDiameter, this.bottomDiameter, this.length, 32);
@@ -77,7 +88,7 @@ for (var i = 0; i < cylinderGeometry.vertices.length; i++) {
 }
 console.log(32 * 16, cylinderGeometry.vertices.length);
 */
-  var cylinderMesh = new THREE.Mesh(cylinderGeometry, material);
+  var cylinderMesh = new THREE.Mesh(cylinderGeometry, Tree.materials.branch);
 
   if (opts.castShadow) {
     sphereMesh.castShadow = true;
@@ -109,7 +120,7 @@ console.log(32 * 16, cylinderGeometry.vertices.length);
   group.add(branch3D);
 
   for (var i = 0; i < this.children.length; i++) {
-    this.children[i].addMeshTo(group, material, opts);
+    this.children[i].addMeshTo(group, opts);
   }
 
   for (var j = 0; j < this.leaves.length; j++) {
@@ -174,18 +185,15 @@ Branch.prototype.grow = function() {
 };
 
 Branch.prototype.growLeaf = function() {
+  // TODO:
+  //this.root.topBottomRatio = 0.8;
+  //this.root.setBottomDiameter(0.05);
+  if (this.topDiameter < 0.05 * Math.pow(0.8, 4))
   this.leaves.push(new Leaf(this));
 };
 
 function Leaf(branch) {
   this.branch = branch;
-  this.material = new THREE.MeshPhongMaterial({
-    color: 0xffffff,
-    transparent: true,
-    ambient: 0xffffff,
-    map: THREE.ImageUtils.loadTexture('images/leaf.png'),
-    side: THREE.DoubleSide
-  });
 }
 
 Leaf.prototype.addMeshTo = function(group, opts) {
@@ -193,7 +201,7 @@ Leaf.prototype.addMeshTo = function(group, opts) {
   var leafHeight = 0.03;
 
   var leafGeometry = new THREE.PlaneGeometry(leafWidth, leafHeight, 1, 1);
-  var leafMesh = new THREE.Mesh(leafGeometry, this.material);
+  var leafMesh = new THREE.Mesh(leafGeometry, Tree.materials.leaf);
   if (opts.castShadow) {
     leafMesh.castShadow = true;
   }
@@ -226,7 +234,8 @@ Leaf.prototype.addMeshTo = function(group, opts) {
   );
 
   leafMesh.position.copy(this.branch.getTopPosition());
-  leafMesh.position.y -= leafHeight / 2 * 0.8;
+  leafMesh.position.y -= leafHeight / 2;
+  leafMesh.position.y -= this.branch.topDiameter / 2;
   group.add(leafMesh);
   return group;
 };
