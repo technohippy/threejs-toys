@@ -74,11 +74,11 @@ Branch.prototype.connect = function(branch) {
 }
 
 Branch.prototype.addMeshTo = function(group, opts) {
-  var sphereGeometry = new THREE.SphereGeometry(this.bottomDiameter, 32, 16);
+  var sphereGeometry = new THREE.SphereGeometry(this.bottomDiameter, 8, 8);
   var sphereMesh = new THREE.Mesh(sphereGeometry, Tree.materials.branch);
   sphereMesh.position.y = -this.length / 2;
 
-  var cylinderGeometry = new THREE.CylinderGeometry(this.topDiameter, this.bottomDiameter, this.length, 32);
+  var cylinderGeometry = new THREE.CylinderGeometry(this.topDiameter, this.bottomDiameter, this.length, 8);
 /*
 // BUMP
 for (var i = 0; i < cylinderGeometry.vertices.length; i++) {
@@ -180,7 +180,7 @@ Branch.prototype.clone = function(withChildren) {
 Branch.prototype.grow = function() {
   var branch = this.clone();
   branch.setBottomDiameter(this.topDiameter);
-  branch.length *= 0.9;
+  branch.length *= 0.9; // TODO
   return branch;
 };
 
@@ -262,24 +262,30 @@ TreeInterpretor.prototype.interprete = function(c) {
     this.currentBranch = this.stack.pop();
     this.nextBranch = this.currentBranch.grow();
   }
-  else if (c == '+') {
+  else if (c == 'Y') {
     this.nextBranch.rotateZ(THREE.Math.degToRad(20));
   }
-  else if (c == '-') {
+  else if (c == 'y') {
     this.nextBranch.rotateZ(THREE.Math.degToRad(-20));
   }
-  else if (c == '*') {
+  else if (c == 'R') {
     this.nextBranch.rotateY(THREE.Math.degToRad(20));
   }
-  else if (c == '/') {
+  else if (c == 'r') {
     this.nextBranch.rotateY(THREE.Math.degToRad(-20));
   }
-  else if (c == 'F') {
+  else if (c == 'd') {
+    this.nextBranch.setBottomDiameter(this.nextBranch.bottomDiameter * 0.9);
+  }
+  else if (c == 's') {
+    this.nextBranch.length *= 0.9;
+  }
+  else if (c == '!') {
     this.currentBranch.connect(this.nextBranch);
     this.currentBranch = this.nextBranch;
     this.nextBranch = this.nextBranch.grow();
   }
-  else if (c == 'L') {
+  else if (c == '@') {
     this.currentBranch.growLeaf();
   }
 };
