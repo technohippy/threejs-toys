@@ -13,21 +13,6 @@ if (DEBUG) {
   document.body.appendChild(stats.domElement);
 }
 
-function lensFlareUpdateCallback(object) {
-  var f, fl = object.lensFlares.length;
-  var flare;
-  var vecX = -object.positionScreen.x * 2;
-  var vecY = -object.positionScreen.y * 2;
-  for (f = 0; f < fl; f++) {
-    flare = object.lensFlares[f];
-    flare.x = object.positionScreen.x + vecX * flare.distance;
-    flare.y = object.positionScreen.y + vecY * flare.distance;
-    flare.rotation = 0;
-  }
-  object.lensFlares[2].y += 0.025;
-  object.lensFlares[3].rotation = object.positionScreen.x * 0.5 + THREE.Math.degToRad(45);
-}
-
 function buildRenderer() {
   var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
   renderer.shadowMapEnabled = true;
@@ -69,8 +54,9 @@ function addLights(scene) {
 
   var ambient = new THREE.AmbientLight(0x666666);
   scene.add(ambient);
+}
 
-  // lens flare
+function buildLensFlare() {
   var textureFlare0 = THREE.ImageUtils.loadTexture('images/lensflare0.png');
   var textureFlare2 = THREE.ImageUtils.loadTexture('images/lensflare2.png');
   var textureFlare3 = THREE.ImageUtils.loadTexture('images/lensflare3.png');
@@ -83,9 +69,8 @@ function addLights(scene) {
   lensFlare.add(textureFlare3, 70, 0.7, THREE.AdditiveBlending);
   lensFlare.add(textureFlare3, 120, 0.9, THREE.AdditiveBlending);
   lensFlare.add(textureFlare3, 70, 1.0, THREE.AdditiveBlending);
-  lensFlare.customUpdateCallback = lensFlareUpdateCallback;
-  lensFlare.position = sunLight.position;
-  scene.add(lensFlare);
+  lensFlare.position = new THREE.Vector3(100, 100, 100);
+  return lensFlare;
 }
 
 function buildTree() {
@@ -200,6 +185,7 @@ function start() {
   scene.add(camera);
 
   addLights(scene);
+  scene.add(buildLensFlare());
   scene.add(buildTree());
   scene.add(buildSkybox());
   scene.add(buildGround());
