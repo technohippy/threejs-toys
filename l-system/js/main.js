@@ -13,8 +13,23 @@ if (DEBUG) {
   document.body.appendChild(stats.domElement);
 }
 
+function lensFlareUpdateCallback(object) {
+  var f, fl = object.lensFlares.length;
+  var flare;
+  var vecX = -object.positionScreen.x * 2;
+  var vecY = -object.positionScreen.y * 2;
+  for (f = 0; f < fl; f++) {
+    flare = object.lensFlares[f];
+    flare.x = object.positionScreen.x + vecX * flare.distance;
+    flare.y = object.positionScreen.y + vecY * flare.distance;
+    flare.rotation = 0;
+  }
+  object.lensFlares[2].y += 0.025;
+  object.lensFlares[3].rotation = object.positionScreen.x * 0.5 + THREE.Math.degToRad(45);
+}
+
 function buildRenderer() {
-  var renderer = new THREE.WebGLRenderer({antialias:true});
+  var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
   renderer.shadowMapEnabled = true;
   renderer.shadowMapSoft = true;
   renderer.shadowMapType = THREE.PCFShadowMap;
@@ -52,8 +67,25 @@ function addLights(scene) {
 
   scene.add(light);
 
-  var ambient = new THREE.AmbientLight(0x333333);
+  var ambient = new THREE.AmbientLight(0x666666);
   scene.add(ambient);
+
+  // lens flare
+  var textureFlare0 = THREE.ImageUtils.loadTexture('images/lensflare0.png');
+  var textureFlare2 = THREE.ImageUtils.loadTexture('images/lensflare2.png');
+  var textureFlare3 = THREE.ImageUtils.loadTexture('images/lensflare3.png');
+  var flareColor = new THREE.Color(0xffccdd);
+  var lensFlare = new THREE.LensFlare(textureFlare0, 700, 0.0, THREE.AdditiveBlending, flareColor);
+  lensFlare.add(textureFlare2, 512, 0.0, THREE.AdditiveBlending);
+  lensFlare.add(textureFlare2, 512, 0.0, THREE.AdditiveBlending);
+  lensFlare.add(textureFlare2, 512, 0.0, THREE.AdditiveBlending);
+  lensFlare.add(textureFlare3, 60, 0.6, THREE.AdditiveBlending);
+  lensFlare.add(textureFlare3, 70, 0.7, THREE.AdditiveBlending);
+  lensFlare.add(textureFlare3, 120, 0.9, THREE.AdditiveBlending);
+  lensFlare.add(textureFlare3, 70, 1.0, THREE.AdditiveBlending);
+  lensFlare.customUpdateCallback = lensFlareUpdateCallback;
+  lensFlare.position = sunLight.position;
+  scene.add(lensFlare);
 }
 
 function buildTree() {
@@ -147,8 +179,10 @@ function buildControls(camera, cameraHeight, cameraDistance) {
   */
   return {
     update: function() {
-      var rad = THREE.Math.degToRad((+new Date - baseTime) / 50 % 360);
-      camera.position.set(cameraDistance * Math.sin(rad), cameraHeight + 0.5 * Math.sin(rad), cameraDistance * Math.cos(rad));
+      var dt = +new Date - baseTime;
+      var rad = THREE.Math.degToRad(dt / 50 % 360);
+      var distance = cameraDistance * (0.6 + 0.3 * Math.cos(rad * 2));
+      camera.position.set(distance * Math.sin(rad), cameraHeight + 0.5 * Math.sin(rad), distance * Math.cos(rad));
       camera.lookAt(new THREE.Vector3(0, cameraHeight, 0));
     }
   };
