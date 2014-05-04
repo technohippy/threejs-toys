@@ -75,27 +75,34 @@ function buildLensFlare() {
 
 function buildTree() {
   var tree = new Tree();
-  var l = new LSystem();
-  for (var key in PARAMS) {
-    if (PARAMS.hasOwnProperty(key)) {
+  var countLSystems = PARAMS.step || 1;
+  var lSystems = [];
+  for (var i = 1; i <= countLSystems; i++) {
+    var l = new LSystem();
+    for (var key in PARAMS) {
+      if (!PARAMS.hasOwnProperty(key)) continue;
+
       var val = PARAMS[key];
-      if (key.match(/^rule-/)) {
+      if (i == 1 && key.match(/^rule-/)) {
         l.addRule(key.substring('rule-'.length), val);
       }
-      else if (key === 'init') {
+      else if (key.match(new RegExp('^rule' + i + '-'))) {
+        l.addRule(key.substring('rulex-'.length), val);
+      }
+      else if ((i == 1 && key === 'init')
+               || key === 'init' + i) {
         l.value = val;
       }
     }
+    lSystems.push(l);
   }
-  if (!l.value) {
-    l.value = 'F';
+  var interpretor = new TreeInterpretor(tree);
+  for (var j = 0; j < lSystems.length; j++) {
+    var l= lSystems[j];
+    l.interpretor = interpretor;
+    l.step(PARAMS['repeat' + (j+1)] || PARAMS.repeat);
+    l.eval();
   }
-  if (Object.getOwnPropertyNames(l.rules).length === 0) {
-    l.addRule('F', 'F[+F-F-F]F[--F+F+F]');
-  }
-  l.interpretor = new TreeInterpretor(tree);
-  l.step(PARAMS.repeat);
-  l.eval();
 
   return tree.getMesh({
     castShadow: true,

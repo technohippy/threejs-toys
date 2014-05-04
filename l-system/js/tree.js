@@ -9,6 +9,7 @@ Tree.textures = {
   branch: THREE.ImageUtils.loadTexture('images/tree.jpg'),
   leaf: THREE.ImageUtils.loadTexture('images/leaf.png')
 };
+
 Tree.materials = {
   branch: new THREE.MeshPhongMaterial({
     color: 0xffffff,
@@ -74,11 +75,12 @@ Branch.prototype.connect = function(branch) {
 }
 
 Branch.prototype.addMeshTo = function(group, opts) {
-  var sphereGeometry = new THREE.SphereGeometry(this.bottomDiameter, 8, 8);
+  var numOfVertex = 8;
+  var sphereGeometry = new THREE.SphereGeometry(this.bottomDiameter, numOfVertex, numOfVertex);
   var sphereMesh = new THREE.Mesh(sphereGeometry, Tree.materials.branch);
   sphereMesh.position.y = -this.length / 2;
 
-  var cylinderGeometry = new THREE.CylinderGeometry(this.topDiameter, this.bottomDiameter, this.length, 8);
+  var cylinderGeometry = new THREE.CylinderGeometry(this.topDiameter, this.bottomDiameter, this.length, numOfVertex);
 /*
 // BUMP
 for (var i = 0; i < cylinderGeometry.vertices.length; i++) {
@@ -180,7 +182,7 @@ Branch.prototype.clone = function(withChildren) {
 Branch.prototype.grow = function() {
   var branch = this.clone();
   branch.setBottomDiameter(this.topDiameter);
-  branch.length *= 0.9; // TODO
+branch.length *= 0.9; // TODO
   return branch;
 };
 
@@ -200,7 +202,7 @@ Leaf.prototype.addMeshTo = function(group, opts) {
   var leafWidth = 0.01;
   var leafHeight = 0.03;
 
-  var leafGeometry = new THREE.PlaneGeometry(leafWidth, leafHeight, 1, 1);
+  var leafGeometry = new THREE.PlaneGeometry(leafWidth, leafHeight);
   var leafMesh = new THREE.Mesh(leafGeometry, Tree.materials.leaf);
   if (opts.castShadow) {
     leafMesh.castShadow = true;
@@ -280,12 +282,12 @@ TreeInterpretor.prototype.interprete = function(c) {
   else if (c == 's') {
     this.nextBranch.length *= 0.9;
   }
-  else if (c == '!') {
+  else if (c == 'T') {
     this.currentBranch.connect(this.nextBranch);
     this.currentBranch = this.nextBranch;
     this.nextBranch = this.nextBranch.grow();
   }
-  else if (c == '@') {
+  else if (c == 'L') {
     this.currentBranch.growLeaf();
   }
 };
