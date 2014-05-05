@@ -1,5 +1,5 @@
 function Tree() {
-  this.root = new Branch();
+  this.root = new Trunk();
   this.root.length = 0.2;
   this.root.topBottomRatio = 0.8;
   this.root.setBottomDiameter(0.05);
@@ -37,7 +37,7 @@ Tree.prototype.getMesh = function(opts) {
   return group;
 };
 
-function Branch() {
+function Trunk() {
   this.bottomPosition = new THREE.Vector3();
   this.direction = new THREE.Vector3(0, 1, 0);
   this.axisX = new THREE.Vector3(1, 0, 0);
@@ -52,29 +52,29 @@ function Branch() {
   this.topBottomRatio = 1;
 }
 
-Branch.prototype.isRoot = function() {
+Trunk.prototype.isRoot = function() {
   return this.parent == null;
 };
 
-Branch.prototype.setBottomDiameter = function(diameter) {
+Trunk.prototype.setBottomDiameter = function(diameter) {
   this.bottomDiameter = diameter;
   this.topDiameter = diameter * this.topBottomRatio;
 };
 
-Branch.prototype.getTopPosition = function() {
+Trunk.prototype.getTopPosition = function() {
 // TODO
   return this.bottomPosition.clone().add(
 //      this.direction.clone().normalize().multiplyScalar(this.length));
       this.axisY.clone().normalize().multiplyScalar(this.length));
 };
 
-Branch.prototype.connect = function(branch) {
+Trunk.prototype.connect = function(branch) {
   branch.bottomPosition.copy(this.getTopPosition());
   this.children.push(branch);
   branch.parent = this;
 }
 
-Branch.prototype.addMeshTo = function(group, opts) {
+Trunk.prototype.addMeshTo = function(group, opts) {
   var numOfVertex = 8;
   var sphereGeometry = new THREE.SphereGeometry(this.bottomDiameter, numOfVertex, numOfVertex);
   var sphereMesh = new THREE.Mesh(sphereGeometry, Tree.materials.branch);
@@ -132,19 +132,19 @@ console.log(32 * 16, cylinderGeometry.vertices.length);
   return group;
 };
 
-Branch.prototype.rotateX = function(rad) {
+Trunk.prototype.rotateX = function(rad) {
   this.rotateAxisRad(this.axisX, rad);
 };
 
-Branch.prototype.rotateY = function(rad) {
+Trunk.prototype.rotateY = function(rad) {
   this.rotateAxisRad(this.axisY, rad);
 };
 
-Branch.prototype.rotateZ = function(rad) {
+Trunk.prototype.rotateZ = function(rad) {
   this.rotateAxisRad(this.axisZ, rad);
 };
 
-Branch.prototype.rotateAxisRad = function(axis, rad) {
+Trunk.prototype.rotateAxisRad = function(axis, rad) {
   var q = new THREE.Quaternion();
   q.setFromAxisAngle(axis, rad);
   var m4 = new THREE.Matrix4().makeRotationFromQuaternion(q);
@@ -153,8 +153,8 @@ Branch.prototype.rotateAxisRad = function(axis, rad) {
   this.axisZ.applyMatrix4(m4);
 };
 
-Branch.prototype.clone = function(withChildren) {
-  var clone = new Branch();
+Trunk.prototype.clone = function(withChildren) {
+  var clone = new Trunk();
   clone.bottomPosition = this.bottomPosition.clone();
   clone.direction = this.direction.clone();
   clone.axisX = this.axisX.clone();
@@ -179,14 +179,14 @@ Branch.prototype.clone = function(withChildren) {
   return clone;
 };
 
-Branch.prototype.grow = function() {
+Trunk.prototype.grow = function() {
   var branch = this.clone();
   branch.setBottomDiameter(this.topDiameter);
 branch.length *= 0.9; // TODO
   return branch;
 };
 
-Branch.prototype.growLeaf = function() {
+Trunk.prototype.growLeaf = function() {
   // TODO:
   //this.root.topBottomRatio = 0.8;
   //this.root.setBottomDiameter(0.05);
@@ -248,46 +248,46 @@ Leaf.prototype.clone = function() {
 
 function TreeInterpretor(tree) {
   this.tree = tree || new Tree();
-  this.currentBranch = this.tree.root;
-  this.nextBranch = this.currentBranch.grow();
+  this.currentTrunk = this.tree.root;
+  this.nextTrunk = this.currentTrunk.grow();
   this.stack = [];
 }
 
 TreeInterpretor.prototype.interprete = function(c) {
   if (c == '[') {
-    this.stack.push(this.currentBranch);
+    this.stack.push(this.currentTrunk);
   }
   else if (c == ']') {
     if (this.stack.length == 0) {
       throw 'nothing to pop';
     }
-    this.currentBranch = this.stack.pop();
-    this.nextBranch = this.currentBranch.grow();
+    this.currentTrunk = this.stack.pop();
+    this.nextTrunk = this.currentTrunk.grow();
   }
   else if (c == 'Y') {
-    this.nextBranch.rotateZ(THREE.Math.degToRad(20));
+    this.nextTrunk.rotateZ(THREE.Math.degToRad(20));
   }
   else if (c == 'y') {
-    this.nextBranch.rotateZ(THREE.Math.degToRad(-20));
+    this.nextTrunk.rotateZ(THREE.Math.degToRad(-20));
   }
   else if (c == 'R') {
-    this.nextBranch.rotateY(THREE.Math.degToRad(20));
+    this.nextTrunk.rotateY(THREE.Math.degToRad(20));
   }
   else if (c == 'r') {
-    this.nextBranch.rotateY(THREE.Math.degToRad(-20));
+    this.nextTrunk.rotateY(THREE.Math.degToRad(-20));
   }
   else if (c == 'd') {
-    this.nextBranch.setBottomDiameter(this.nextBranch.bottomDiameter * 0.9);
+    this.nextTrunk.setBottomDiameter(this.nextTrunk.bottomDiameter * 0.9);
   }
   else if (c == 's') {
-    this.nextBranch.length *= 0.9;
+    this.nextTrunk.length *= 0.9;
   }
   else if (c == 'T') {
-    this.currentBranch.connect(this.nextBranch);
-    this.currentBranch = this.nextBranch;
-    this.nextBranch = this.nextBranch.grow();
+    this.currentTrunk.connect(this.nextTrunk);
+    this.currentTrunk = this.nextTrunk;
+    this.nextTrunk = this.nextTrunk.grow();
   }
   else if (c == 'L') {
-    this.currentBranch.growLeaf();
+    this.currentTrunk.growLeaf();
   }
 };
