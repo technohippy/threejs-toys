@@ -74,9 +74,9 @@ function buildLensFlare() {
 }
 
 function buildTree() {
-  var tree = new Tree();
   var countLSystems = PARAMS.step || 1;
   var lSystems = [];
+  var state;
   for (var i = 1; i <= countLSystems; i++) {
     var l = new LSystem();
     for (var key in PARAMS) {
@@ -89,20 +89,22 @@ function buildTree() {
       else if (key.match(new RegExp('^rule' + i + '-'))) {
         l.addRule(key.substring('rulex-'.length), val);
       }
-      else if ((i == 1 && key === 'init')
-               || key === 'init' + i) {
-        l.value = val;
+      else if (key === 'init') {
+        state = val;
       }
     }
     lSystems.push(l);
   }
-  var interpretor = new TreeInterpretor(tree);
   for (var j = 0; j < lSystems.length; j++) {
-    var l= lSystems[j];
-    l.interpretor = interpretor;
+    var l = lSystems[j];
+    l.value = state;
     l.step(PARAMS['repeat' + (j+1)] || PARAMS.repeat);
-    l.eval();
+    state = l.value;
   }
+
+  var tree = new Tree();
+  var interpretor = new TreeInterpretor(tree);
+  interpretor.interpreteAll(state);
 
   return tree.getMesh({
     castShadow: true,

@@ -28,12 +28,3 @@ LSystem.prototype.step = function(n) {
 
   return this.value;
 };
-
-LSystem.prototype.eval = function() {
-  if (!this.interpretor || !this.interpretor.interprete) throw 'interpretor must be set.';
-
-  for (var i = 0; i < this.value.length; i++) {
-    var c = this.value[i];
-    this.interpretor.interprete(c);
-  }
-};

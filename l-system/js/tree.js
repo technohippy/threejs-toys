@@ -253,6 +253,12 @@ function TreeInterpretor(tree) {
   this.stack = [];
 }
 
+TreeInterpretor.prototype.interpreteAll = function(s) {
+  for (var i = 0; i < s.length; i++) {
+    this.interprete(s[i]);
+  }
+};
+
 TreeInterpretor.prototype.interprete = function(c) {
   if (c == '[') {
     this.stack.push(this.currentTrunk);
