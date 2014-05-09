@@ -1,8 +1,5 @@
 if(!Detector.webgl) Detector.addGetWebGLMessage();
 
-var PARAMS = Utils.getParams();
-if (!PARAMS.repeat) PARAMS.repeat = 3;
-var DEBUG = PARAMS['debug'];
 var baseTime;
 
 if (DEBUG) {

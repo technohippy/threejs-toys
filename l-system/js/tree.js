@@ -6,16 +6,16 @@ function Tree() {
 }
 
 Tree.textures = {
-  branch: THREE.ImageUtils.loadTexture('images/tree.jpg'),
+  trunk: THREE.ImageUtils.loadTexture('images/tree.jpg'),
   leaf: THREE.ImageUtils.loadTexture('images/leaf.png')
 };
 
 Tree.materials = {
-  branch: new THREE.MeshPhongMaterial({
+  trunk: new THREE.MeshPhongMaterial({
     color: 0xffffff,
     ambient: 0x333333,
-    map: Tree.textures.branch,
-    bumpMap: Tree.textures.branch,
+    map: Tree.textures.trunk,
+    bumpMap: Tree.textures.trunk,
     bumpScale: 0.01
   }),
   leaf: new THREE.MeshPhongMaterial({
@@ -27,8 +27,8 @@ Tree.materials = {
   })
 };
 
-Tree.prototype.connect = function(branch) {
-  this.root.connect(branch);
+Tree.prototype.connect = function(trunk) {
+  this.root.connect(trunk);
 };
 
 Tree.prototype.getMesh = function(opts) {
@@ -68,16 +68,16 @@ Trunk.prototype.getTopPosition = function() {
       this.axisY.clone().normalize().multiplyScalar(this.length));
 };
 
-Trunk.prototype.connect = function(branch) {
-  branch.bottomPosition.copy(this.getTopPosition());
-  this.children.push(branch);
-  branch.parent = this;
+Trunk.prototype.connect = function(trunk) {
+  trunk.bottomPosition.copy(this.getTopPosition());
+  this.children.push(trunk);
+  trunk.parent = this;
 }
 
 Trunk.prototype.addMeshTo = function(group, opts) {
   var numOfVertex = 8;
   var sphereGeometry = new THREE.SphereGeometry(this.bottomDiameter, numOfVertex, numOfVertex);
-  var sphereMesh = new THREE.Mesh(sphereGeometry, Tree.materials.branch);
+  var sphereMesh = new THREE.Mesh(sphereGeometry, Tree.materials.trunk);
   sphereMesh.position.y = -this.length / 2;
 
   var cylinderGeometry = new THREE.CylinderGeometry(this.topDiameter, this.bottomDiameter, this.length, numOfVertex);
@@ -90,7 +90,7 @@ for (var i = 0; i < cylinderGeometry.vertices.length; i++) {
 }
 console.log(32 * 16, cylinderGeometry.vertices.length);
 */
-  var cylinderMesh = new THREE.Mesh(cylinderGeometry, Tree.materials.branch);
+  var cylinderMesh = new THREE.Mesh(cylinderGeometry, Tree.materials.trunk);
 
   if (opts.castShadow) {
     sphereMesh.castShadow = true;
@@ -101,25 +101,25 @@ console.log(32 * 16, cylinderGeometry.vertices.length);
     cylinderMesh.receiveShadow = true;
   }
 
-  var branch3D = new THREE.Object3D();
-  if (!this.isRoot()) branch3D.add(sphereMesh);
-  branch3D.add(cylinderMesh);
+  var trunk3D = new THREE.Object3D();
+  if (!this.isRoot()) trunk3D.add(sphereMesh);
+  trunk3D.add(cylinderMesh);
 
   var dir = new THREE.Vector3();
   dir.crossVectors(this.direction, this.axisY).normalize();
   var dot = this.direction.dot(this.axisY);
   var rad = Math.acos(dot);
+  trunk3D.setRotationFromAxisAngle(dir, rad);
 
-  branch3D.setRotationFromAxisAngle(dir, rad);
   if (this.isRoot()) {
-    branch3D.position.copy(this.bottomPosition);
-    branch3D.translateOnAxis(this.direction, this.length/2);
+    trunk3D.position.copy(this.bottomPosition);
+    trunk3D.translateOnAxis(this.direction, this.length/2);
   }
   else {
-    branch3D.position.copy(this.parent.getTopPosition());
-    branch3D.translateOnAxis(this.parent.direction, this.length/2);
+    trunk3D.position.copy(this.parent.getTopPosition());
+    trunk3D.translateOnAxis(this.parent.direction, this.length/2);
   }
-  group.add(branch3D);
+  group.add(trunk3D);
 
   for (var i = 0; i < this.children.length; i++) {
     this.children[i].addMeshTo(group, opts);
@@ -179,23 +179,29 @@ Trunk.prototype.clone = function(withChildren) {
   return clone;
 };
 
+Trunk.prototype.toBranch = function() {
+  this.length = 0.01;
+  this.topBottomRatio = 1;
+  this.setBottomDiameter(0.0001);
+};
+
 Trunk.prototype.grow = function() {
-  var branch = this.clone();
-  branch.setBottomDiameter(this.topDiameter);
-branch.length *= 0.9; // TODO
-  return branch;
+  var trunk = this.clone();
+  trunk.setBottomDiameter(this.topDiameter);
+  trunk.length *= 0.9; // TODO
+  return trunk;
+};
+
+Trunk.prototype.growBranch = function() {
+  return Branch.trunkToBranch(this.clone());
 };
 
 Trunk.prototype.growLeaf = function() {
-  // TODO:
-  //this.root.topBottomRatio = 0.8;
-  //this.root.setBottomDiameter(0.05);
-  if (this.topDiameter < 0.05 * Math.pow(0.8, 4))
   this.leaves.push(new Leaf(this));
 };
 
-function Leaf(branch) {
-  this.branch = branch;
+function Leaf(trunk) {
+  this.trunk = trunk;
 }
 
 Leaf.prototype.addMeshTo = function(group, opts) {
@@ -211,39 +217,22 @@ Leaf.prototype.addMeshTo = function(group, opts) {
     leafMesh.receiveShadow = true;
   }
 
-  var up = new THREE.Vector3(0, 0, 1).normalize();
-  var normalAxis = this.branch.axisY.clone();
-  normalAxis.y = 0;
-  normalAxis.normalize();
-  var dir = new THREE.Vector3();
-  dir.crossVectors(up, normalAxis).normalize();
-  var dot = up.dot(normalAxis);
-  var rad = Math.acos(dot);
-  var m1 = new THREE.Matrix4().makeRotationFromQuaternion(
-    new THREE.Quaternion().setFromAxisAngle(dir, rad)
-  );
-  //leafMesh.setRotationFromMatrix(m1);
-  
-  // TODO: ??
-  var normalAxis2 = this.branch.axisZ.clone();
-  normalAxis2.y = 0;
-  normalAxis2.normalize();
-  var m2 = new THREE.Matrix4().makeRotationFromQuaternion(
-    new THREE.Quaternion().setFromAxisAngle(normalAxis2, THREE.Math.degToRad(Math.random() * 10 - 35))
-  );
-  leafMesh.setRotationFromMatrix(
-    new THREE.Matrix4().multiplyMatrices(m2, m1)
-  );
-
-  leafMesh.position.copy(this.branch.getTopPosition());
+  leafMesh.position.copy(this.trunk.getTopPosition());
   leafMesh.position.y -= leafHeight / 2;
-  leafMesh.position.y -= this.branch.topDiameter / 2;
+  leafMesh.position.y -= this.trunk.topDiameter / 2;
+
+  var dir = new THREE.Vector3();
+  dir.crossVectors(this.trunk.direction, this.trunk.axisY).normalize();
+  var dot = this.trunk.direction.dot(this.trunk.axisY);
+  var rad = Math.acos(dot);
+  leafMesh.setRotationFromAxisAngle(dir, rad + 3.14/2);
+
   group.add(leafMesh);
   return group;
 };
 
 Leaf.prototype.clone = function() {
-  return new Leaf(this.branch);
+  return new Leaf(this.trunk);
 };
 
 function TreeInterpretor(tree) {
@@ -288,7 +277,16 @@ TreeInterpretor.prototype.interprete = function(c) {
   else if (c == 's') {
     this.nextTrunk.length *= 0.9;
   }
+  else if (c == 'l') {
+    this.nextTrunk.length *= 1.1;
+  }
   else if (c == 'T') {
+    this.currentTrunk.connect(this.nextTrunk);
+    this.currentTrunk = this.nextTrunk;
+    this.nextTrunk = this.nextTrunk.grow();
+  }
+  else if (c == 'B') {
+    this.nextTrunk.toBranch();
     this.currentTrunk.connect(this.nextTrunk);
     this.currentTrunk = this.nextTrunk;
     this.nextTrunk = this.nextTrunk.grow();
