@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   function $(id) {return document.getElementById(id)}
 
-  if (!PARAMS.repeat) PARAMS.repeat = 3;
-
   var consoleElm = $('console');
   var button = $('console-button');
   button.addEventListener('click', function(evt) {
@@ -18,6 +16,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var stateElm = $('initial-state');
   stateElm.value = PARAMS['init'];
+  var yawElm = $('yaw');
+  yawElm.value = PARAMS['yaw'];
+  var rollElm = $('roll');
+  rollElm.value = PARAMS['roll'];
+  var shortenElm = $('shorten');
+  shortenElm.value = PARAMS['shorten'];
+  var lengthenElm = $('lengthen');
+  lengthenElm.value = PARAMS['lengthen'];
   var debugElm = $('debug');
   debugElm.checked = DEBUG;
   var repeat1Elm = $('repeat1');
@@ -39,9 +45,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   $('reload').addEventListener('click', function() {
     var params = ['step=2'];
-    console.log(debugElm.value);
     params.push('debug=' + (debugElm.checked ? 1 : 0));
     params.push('init=' + stateElm.value);
+    params.push('yaw=' + yawElm.value);
+    params.push('roll=' + rollElm.value);
+    params.push('shorten=' + shortenElm.value);
+    params.push('lengthen=' + lengthenElm.value);
     params.push('repeat1=' + repeat1Elm.value);
     params.push('repeat2=' + repeat2Elm.value);
     var rules1 = rules1Elm.value.split('\n');
@@ -60,6 +69,10 @@ document.addEventListener('DOMContentLoaded', function() {
         params.push('rule2-' + kv2[0] + '=' + kv2[1]);
       }
     }
-    window.location = '?' + params.join('&');
+    consoleElm.classList.remove('show');
+    consoleElm.classList.add('hide');
+    window.setTimeout(function() {
+      window.location = '?' + params.join('&');
+    }, 500);
   });
 });

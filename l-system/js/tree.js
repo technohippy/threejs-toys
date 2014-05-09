@@ -27,6 +27,11 @@ Tree.materials = {
   })
 };
 
+Tree.yawDegree = PARAMS['yaw'];
+Tree.rollDegree = PARAMS['roll'];
+Tree.shortenRatio = PARAMS['shorten'];
+Tree.lengthenRatio = PARAMS['lengthen'];
+
 Tree.prototype.connect = function(trunk) {
   this.root.connect(trunk);
 };
@@ -188,7 +193,7 @@ Trunk.prototype.toBranch = function() {
 Trunk.prototype.grow = function() {
   var trunk = this.clone();
   trunk.setBottomDiameter(this.topDiameter);
-  trunk.length *= 0.9; // TODO
+  trunk.length *= Tree.shortenRatio;
   return trunk;
 };
 
@@ -260,25 +265,25 @@ TreeInterpretor.prototype.interprete = function(c) {
     this.nextTrunk = this.currentTrunk.grow();
   }
   else if (c == 'Y') {
-    this.nextTrunk.rotateZ(THREE.Math.degToRad(20));
+    this.nextTrunk.rotateZ(THREE.Math.degToRad(Tree.yawDegree));
   }
   else if (c == 'y') {
-    this.nextTrunk.rotateZ(THREE.Math.degToRad(-20));
+    this.nextTrunk.rotateZ(THREE.Math.degToRad(-Tree.yawDegree));
   }
   else if (c == 'R') {
-    this.nextTrunk.rotateY(THREE.Math.degToRad(20));
+    this.nextTrunk.rotateY(THREE.Math.degToRad(Tree.rollDegree));
   }
   else if (c == 'r') {
-    this.nextTrunk.rotateY(THREE.Math.degToRad(-20));
+    this.nextTrunk.rotateY(THREE.Math.degToRad(-Tree.rollDegree));
   }
   else if (c == 'd') {
     this.nextTrunk.setBottomDiameter(this.nextTrunk.bottomDiameter * 0.9);
   }
   else if (c == 's') {
-    this.nextTrunk.length *= 0.9;
+    this.nextTrunk.length *= Tree.shortenRatio;
   }
   else if (c == 'l') {
-    this.nextTrunk.length *= 1.1;
+    this.nextTrunk.length *= Tree.lengthenRatio;
   }
   else if (c == 'T') {
     this.currentTrunk.connect(this.nextTrunk);

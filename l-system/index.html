@@ -7,24 +7,32 @@
     <script src="./js/utils.js"></script>
     <script>
     var PARAMS = Utils.getParams();
-    var DEBUG = PARAMS['debug'] == '1';
+    if (!PARAMS['debug']) PARAMS['debug'] = 0;
+    if (!PARAMS['repeat']) PARAMS['repeat'] = 3;
+    if (!PARAMS['yaw']) PARAMS['yaw'] = 20;
+    if (!PARAMS['roll']) PARAMS['roll'] = 20;
+    if (!PARAMS['shorten']) PARAMS['shorten'] = 0.9;
+    if (!PARAMS['lengthen']) PARAMS['lengthen'] = 1.1;
+    var DEBUG = PARAMS['debug'] == 1;
     </script>
 
     <script src="./js/console.js"></script>
   </head>
   <body>
     <menu id="console" class="hide">
-<!--
-init=T
-rule1-T=T[YYYdddssyTyrrrrTYTL]RRRRYT[yyRdddssTLYrrrrTYYrrTL]
-repeat1=2
-rule2-L=rrrL
--->
       <section>
         <h1>General</h1>
         <form>
           <label for="initial-state">State</label>
           <input id="initial-state" type="text" />
+          <label for="yaw">Yaw (deg)</label>
+          <input id="yaw" type="number" min="0" max="180" step="5" />
+          <label for="roll">Roll (deg)</label>
+          <input id="roll" type="number" min="0" max="180" step="5" />
+          <label for="shorten">Shorten</label>
+          <input id="shorten" type="number" min="0" max="1" step="0.1" />
+          <label for="lengthen">Lengthen</label>
+          <input id="lengthen" type="number" min="1" max="10" step="0.1" />
           <label for="debug">Debug</label>
           <input id="debug" type="checkbox" />
         </form>
