@@ -10,7 +10,7 @@ var box = new C3.Box(2, 2, 2, {mass:5, color:0xff0000});
 box.position.set(0.5, 0, 5);
 world.add(box);
 
-var wall = new C3.Box(1, 10, 0.5, {mass:0, color:0x0000ff});
+var wall = new C3.Box(1, 10, 0.5, {fixed:true, color:0x0000ff});
 wall.position.set(-5, 0, 0.25);
 world.add(wall);
 
@@ -26,5 +26,6 @@ window.addEventListener('click', function() {
   var dt = 1/60;
   var impulse = new CANNON.Vec3(0, 0, f * dt);
   // TODO
+  sphere.applyImpulse(impulse, sphere.cannonBody.position);
   box.applyImpulse(impulse, box.cannonBody.position);
 });

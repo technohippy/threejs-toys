@@ -45,10 +45,6 @@ C3.Vector3.prototype = {
     this.listeners.forEach(function(listener) {
       listener(this);
     }, this);
-  },
-
-  toString: function() {
-    return '[' + this._x + ', ' + this._y + ', ' + this._z + ']';
   }
 };
 
@@ -180,84 +176,37 @@ C3.World.prototype = {
   }
 };
 
-C3.Body = function() {
-};
-
-C3.Sphere = function(radius, opts) {
+C3.Body = function(opts) {
   this.isConstrucrted = false;
-  this.radius = radius;
   opts = opts || {};
   this.position = new C3.Vector3(0, 0, 0);
 
-  this.threeOpts = {color:0xffffff, ambient:0x333333, castShadow:true, receiveShadow:false};
+  this.threeOpts = {color:0xffffff, ambient:0x333333, castShadow:false, receiveShadow:false};
   if (opts['color']) this.threeOpts['color'] = opts['color'];
   if (opts['ambient']) this.threeOpts['ambient'] = opts['ambient'];
+  if (opts['castShadow']) this.threeOpts['castShadow'] = true;
+  if (opts['receiveShadow']) this.threeOpts['receiveShadow'] = true;
 
   this.cannonOpts = {mass:1};
   if (opts['mass']) this.cannonOpts['mass'] = opts['mass'];
+  if (opts['fixed']) this.cannonOpts['mass'] = 0;
 
   ['castShadow', 'receiveShadow'].forEach(function(prop) {
     C3.delegateProperty(this, prop, this.threeOpts);
   }, this);
 };
 
-C3.Sphere.prototype = {
-  constructor: C3.Shape,
-
-  construct: function() {
-    var geometry = new THREE.SphereGeometry(this.radius, 32, 32);
-    var material = new THREE.MeshPhongMaterial({
-      color:this.threeOpts['color'],
-      ambient:this.threeOpts['ambient']
-    });
-    this.threeMesh = new THREE.Mesh(geometry, material);
-    if (this.threeOpts['castShadow']) this.threeMesh.castShadow = true;
-    if (this.threeOpts['receiveShadow']) this.threeMesh.receiveShadow = true;
-    this.threeMesh.position.copy(this.position);
-
-    var shape = new CANNON.Sphere(this.radius);
-    this.cannonBody = new CANNON.RigidBody(this.cannonOpts['mass'], shape);
-    this.cannonBody.position.set(this.position.x, this.position.y, this.position.z);
-
-    this.position.listeners.push(function(p) {
-      this.threeMesh.position.copy(p);
-      this.cannonBody.position.set(p.x, p.y, p.z);
-    });
-
-    this.isConstrucrted = true;
+C3.Body.prototype = {
+  constructThreeGeometry: function() {
+    throw 'subclass responsibility';
   },
 
-  sync: function() {
-    this.threeMesh.position.copy(this.cannonBody.position);
-    this.threeMesh.quaternion.copy(this.cannonBody.quaternion);
-  }
-};
-
-C3.Box = function(x, y, z, opts) {
-  this.isConstrucrted = false;
-  this.x = x;
-  this.y = y;
-  this.z = z;
-  opts = opts || {};
-  this.position = new C3.Vector3(0, 0, 0);
-
-  this.threeOpts = {color:0xffffff, ambient:0x333333, castShadow:true, receiveShadow:false};
-  if (opts['color']) this.threeOpts['color'] = opts['color'];
-  if (opts['ambient']) this.threeOpts['ambient'] = opts['ambient'];
-
-  this.cannonOpts = {mass:1};
-  if (opts['mass']) this.cannonOpts['mass'] = opts['mass'];
-
-  ['castShadow', 'receiveShadow'].forEach(function(prop) {
-    C3.delegateProperty(this, prop, this.threeOpts);
-  }, this);
-};
-
-C3.Box.prototype = {
-  constructor: C3.Box,
+  constructCannonShape: function() {
+    throw 'subclass responsibility';
+  },
 
   construct: function() {
-    var geometry = new THREE.BoxGeometry(this.x, this.y, this.z);
+    var geometry = this.constructThreeGeometry();
     var material = new THREE.MeshPhongMaterial({
       color:this.threeOpts['color'],
       ambient:this.threeOpts['ambient']
@@ -267,7 +216,7 @@ C3.Box.prototype = {
     if (this.threeOpts['receiveShadow']) this.threeMesh.receiveShadow = true;
     this.threeMesh.position.copy(this.position);
 
-    var shape = new CANNON.Box(new CANNON.Vec3(this.x/2, this.y/2, this.z/2));
+    var shape = this.constructCannonShape();
     this.cannonBody = new CANNON.RigidBody(this.cannonOpts['mass'], shape);
     this.cannonBody.position.set(this.position.x, this.position.y, this.position.z);
 
@@ -289,51 +238,53 @@ C3.Box.prototype = {
   }
 };
 
-C3.Ground = function(opts) {
-  this.isConstrucrted = false;
+C3.Sphere = function(radius, opts) {
   opts = opts || {};
-  this.position = new C3.Vector3(0, 0, 0);
-
-  this.threeOpts = {color:0xffffff, ambient:0x333333, castShadow:false, receiveShadow:true};
-  if (opts['color']) this.threeOpts['color'] = opts['color'];
-  if (opts['ambient']) this.threeOpts['ambient'] = opts['ambient'];
-
-  this.cannonOpts = {mass:0};
-  if (opts['mass']) this.cannonOpts['mass'] = opts['mass'];
-
-  ['castShadow', 'receiveShadow'].forEach(function(prop) {
-    C3.delegateProperty(this, prop, this.threeOpts);
-  }, this);
+  if (typeof(opts['castShadow']) === 'undefined') opts['castShadow'] = true;
+  C3.Body.call(this, opts);
+  this.radius = radius;
 };
 
-C3.Ground.prototype = {
-  constructor: C3.Ground,
-
-  construct: function() {
-    var geometry = new THREE.BoxGeometry(1000, 1000, 0.1);
-    var material = new THREE.MeshPhongMaterial({
-      color:this.threeOpts['color'],
-      ambient:this.threeOpts['ambient']
-    });
-    this.threeMesh = new THREE.Mesh(geometry, material);
-    if (this.threeOpts['castShadow']) this.threeMesh.castShadow = true;
-    if (this.threeOpts['receiveShadow']) this.threeMesh.receiveShadow = true;
-    this.threeMesh.position.copy(this.position);
-
-    var shape = new CANNON.Plane();
-    this.cannonBody = new CANNON.RigidBody(this.cannonOpts['mass'], shape);
-    this.cannonBody.position.set(this.position.x, this.position.y, this.position.z);
-
-    this.position.listeners.push(function(p) {
-      this.threeMesh.position.copy(p);
-      this.cannonBody.position.set(p.x, p.y, p.z);
-    });
-
-    this.isConstrucrted = true;
-  },
-
-  sync: function() {
-//    this.threeMesh.position.copy(this.cannonBody.position);
-//    this.threeMesh.quaternion.copy(this.cannonBody.quaternion);
-  }
+C3.Sphere.prototype = Object.create(C3.Body.prototype);
+C3.Sphere.prototype.constructor = C3.Sphere;
+C3.Sphere.prototype.constructThreeGeometry = function() {
+  return new THREE.SphereGeometry(this.radius, 32, 32);
 };
+C3.Sphere.prototype.constructCannonShape = function() {
+  return new CANNON.Sphere(this.radius);
+};
+
+C3.Box = function(x, y, z, opts) {
+  opts = opts || {};
+  if (typeof(opts['castShadow']) === 'undefined') opts['castShadow'] = true;
+  C3.Body.call(this, opts);
+  this.x = x;
+  this.y = y;
+  this.z = z;
+};
+
+C3.Box.prototype = Object.create(C3.Body.prototype);
+C3.Box.prototype.constructor = C3.Box;
+C3.Box.prototype.constructThreeGeometry = function() {
+  return new THREE.BoxGeometry(this.x, this.y, this.z);
+};
+C3.Box.prototype.constructCannonShape = function() {
+  return new CANNON.Box(new CANNON.Vec3(this.x/2, this.y/2, this.z/2));
+};
+
+C3.Ground = function(opts) {
+  opts = opts || {};
+  if (typeof(opts['fixed']) === 'undefined') opts['fixed'] = true;
+  if (typeof(opts['receiveShadow']) === 'undefined') opts['receiveShadow'] = true;
+  C3.Body.call(this, opts);
+};
+
+C3.Ground.prototype = Object.create(C3.Body.prototype);
+C3.Ground.prototype.constructor = C3.Ground;
+C3.Ground.prototype.constructThreeGeometry = function() {
+  return new THREE.BoxGeometry(1000, 1000, 0.1);
+};
+C3.Ground.prototype.constructCannonShape = function() {
+  return new CANNON.Plane();
+};
+C3.Ground.prototype.sync = function() {};
