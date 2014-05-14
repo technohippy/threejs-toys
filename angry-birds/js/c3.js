@@ -48,6 +48,26 @@ C3.Vector3.prototype = {
   }
 };
 
+/*
+C3.Quaternion = function() {
+  this.listeners = [];
+};
+
+C3.Quaternion.prototype = {
+  constructor: C3.Quaternion,
+
+  set: function(x, y, z, w) {
+    this._x = x;
+    this._y = y;
+    this._z = z;
+    this._w = w;
+    this.listeners.forEach(function(listener) {
+      listener(this);
+    }, this);
+  }
+};
+*/
+
 C3.World = function(opts) {
   opts = opts || {};
   this.bodies = [];
@@ -180,10 +200,12 @@ C3.Body = function(opts) {
   this.isConstrucrted = false;
   opts = opts || {};
   this.position = new C3.Vector3(0, 0, 0);
+  this.quaternion = new THREE.Quaternion();
 
   this.threeOpts = {color:0xffffff, ambient:0x333333, castShadow:false, receiveShadow:false};
   if (opts['color']) this.threeOpts['color'] = opts['color'];
   if (opts['ambient']) this.threeOpts['ambient'] = opts['ambient'];
+  if (opts['map']) this.threeOpts['map'] = opts['map'];
   if (opts['castShadow']) this.threeOpts['castShadow'] = true;
   if (opts['receiveShadow']) this.threeOpts['receiveShadow'] = true;
 
@@ -207,23 +229,34 @@ C3.Body.prototype = {
 
   construct: function() {
     var geometry = this.constructThreeGeometry();
-    var material = new THREE.MeshPhongMaterial({
+    var materialOpts = {
       color:this.threeOpts['color'],
       ambient:this.threeOpts['ambient']
-    });
+    };
+    if (this.threeOpts['map']) materialOpts['map'] = this.threeOpts['map'];
+    var material = new THREE.MeshPhongMaterial(materialOpts);
     this.threeMesh = new THREE.Mesh(geometry, material);
     if (this.threeOpts['castShadow']) this.threeMesh.castShadow = true;
     if (this.threeOpts['receiveShadow']) this.threeMesh.receiveShadow = true;
     this.threeMesh.position.copy(this.position);
+    this.threeMesh.quaternion.copy(this.quaternion);
 
     var shape = this.constructCannonShape();
     this.cannonBody = new CANNON.RigidBody(this.cannonOpts['mass'], shape);
     this.cannonBody.position.set(this.position.x, this.position.y, this.position.z);
+    this.cannonBody.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w);
 
     this.position.listeners.push(function(p) {
       this.threeMesh.position.copy(p);
       this.cannonBody.position.set(p.x, p.y, p.z);
-    });
+    }.bind(this));
+
+    /*
+    this.quaternion.listeners.push(function(q) {
+      this.threeMesh.quaternion.copy(q);
+      this.cannonBody.quaternion.set(q.x, q.y, q.z, q.w);
+    }.bind(this));
+    */
 
     this.isConstrucrted = true;
   },
