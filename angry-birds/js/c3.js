@@ -96,7 +96,8 @@ C3.World = function(opts) {
     this.threeRenderer.shadowMapSoft = true;
     this.threeRenderer.shadowMapType = THREE.PCFShadowMap;
     this.threeRenderer.setSize(window.innerWidth, window.innerHeight);
-    this.threeRenderer.setClearColor(0x000000, 1);
+    //this.threeRenderer.setClearColor(0x000000, 1);
+    this.threeRenderer.setClearColor(0xccccff, 1); // TODO
     window.addEventListener('resize', function() {
       this.threeRenderer.setSize(window.innerWidth, window.innerHeight);
       // TODO
@@ -206,6 +207,11 @@ C3.Body = function(opts) {
   if (opts['color']) this.threeOpts['color'] = opts['color'];
   if (opts['ambient']) this.threeOpts['ambient'] = opts['ambient'];
   if (opts['map']) this.threeOpts['map'] = opts['map'];
+  if (opts['bumpMap']) {
+    this.threeOpts['bumpMap'] = opts['bumpMap'];
+    this.threeOpts['bumpScale'] = 0.01;
+  }
+  if (opts['bumpScale']) this.threeOpts['bumpScale'] = opts['bumpScale'];
   if (opts['castShadow']) this.threeOpts['castShadow'] = true;
   if (opts['receiveShadow']) this.threeOpts['receiveShadow'] = true;
 
@@ -234,6 +240,10 @@ C3.Body.prototype = {
       ambient:this.threeOpts['ambient']
     };
     if (this.threeOpts['map']) materialOpts['map'] = this.threeOpts['map'];
+    if (this.threeOpts['bumpMap']) {
+      materialOpts['bumpMap'] = this.threeOpts['bumpMap'];
+      materialOpts['bumpScale'] = this.threeOpts['bumpScale'];
+    }
     var material = new THREE.MeshPhongMaterial(materialOpts);
     this.threeMesh = new THREE.Mesh(geometry, material);
     if (this.threeOpts['castShadow']) this.threeMesh.castShadow = true;
