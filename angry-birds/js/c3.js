@@ -60,7 +60,7 @@ C3.World = function(opts) {
   this.cannonWorld = opts.world;
   if (!this.cannonWorld) {
     this.cannonWorld = new CANNON.World();
-    this.cannonWorld.allowSleep = true;
+    //this.cannonWorld.allowSleep = true;
     this.cannonWorld.gravity.set(0,0,-9.82);
     this.cannonWorld.broadphase = new CANNON.NaiveBroadphase();
   }
@@ -180,6 +180,9 @@ C3.World.prototype = {
   }
 };
 
+C3.Body = function() {
+};
+
 C3.Sphere = function(radius, opts) {
   this.isConstrucrted = false;
   this.radius = radius;
@@ -274,6 +277,10 @@ C3.Box.prototype = {
     });
 
     this.isConstrucrted = true;
+  },
+  
+  applyImpulse: function(impulse, point) {
+    this.cannonBody.applyImpulse(impulse, point);
   },
 
   sync: function() {
