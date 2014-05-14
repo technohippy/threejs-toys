@@ -4,9 +4,22 @@
     <meta charset="UTF-8">
     <style>
     body { margin:0; overflow:hidden; }
+    .hide { display:none; }
+    #hit {
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      text-align:center; 
+      font-size:3em; 
+      font-weight:bold;
+      z-index:999;
+      color:white;
+    }
     </style>
   </head>
   <body>
+    <div id="hit" class="hide">Hit!!</div>
     <!--script src="./lib/cannon.min.js"></script-->
     <script src="./lib/cannon.js"></script>
     <script src="./lib/three.min.js"></script>

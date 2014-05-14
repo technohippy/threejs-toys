@@ -84,8 +84,8 @@ C3.World = function(opts) {
   this.threeCamera = opts.camera;
   if (!this.threeCamera) {
     this.threeCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight);
-    this.threeCamera.position = new THREE.Vector3(0, -10, 3);
-    this.threeCamera.lookAt(new THREE.Vector3(0, 0, 0));
+    this.threeCamera.position = new THREE.Vector3(2, -9, 6);
+    this.threeCamera.lookAt(new THREE.Vector3(2, 4, 0));
     this.cameraAdded = false;
   }
 
