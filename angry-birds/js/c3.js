@@ -220,6 +220,8 @@ C3.Body = function(opts) {
   this.cannonOpts = {mass:1};
   if (opts['mass']) this.cannonOpts['mass'] = opts['mass'];
   if (opts['fixed']) this.cannonOpts['mass'] = 0;
+  if (opts['linearDamping']) this.cannonOpts['linearDamping'] = opts['linearDamping'];
+  if (opts['angularDamping']) this.cannonOpts['angularDamping'] = opts['angularDamping'];
 
   ['castShadow', 'receiveShadow'].forEach(function(prop) {
     C3.delegateProperty(this, prop, this.threeOpts);
@@ -257,6 +259,8 @@ C3.Body.prototype = {
     this.cannonBody = new CANNON.RigidBody(this.cannonOpts['mass'], shape);
     this.cannonBody.position.set(this.position.x, this.position.y, this.position.z);
     this.cannonBody.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w);
+    if (this.cannonOpts['linearDamping']) this.cannonBody.linearDamping = this.cannonOpts['linearDamping'];
+    if (this.cannonOpts['angularDamping']) this.cannonBody.angularDamping = this.cannonOpts['angularDamping'];
 
     this.position.listeners.push(function(p) {
       this.threeMesh.position.copy(p);
