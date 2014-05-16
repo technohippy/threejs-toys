@@ -85,7 +85,7 @@ C3.World = function(opts) {
   if (!this.threeCamera) {
     this.threeCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight);
     this.threeCamera.position = new THREE.Vector3(2, -9, 6);
-    this.threeCamera.lookAt(new THREE.Vector3(2, 4, 0));
+    this.threeCamera.lookAt(new THREE.Vector3(2, 15, 0));
     this.cameraAdded = false;
   }
 
@@ -156,8 +156,8 @@ C3.World.prototype = {
     light.shadowCameraFar = 100;
     light.shadowCameraLeft = -50;
     light.shadowCameraRight = 50;
-    light.shadowCameraTop = 5;
-    light.shadowCameraBottom = -5;
+    light.shadowCameraTop = 50;
+    light.shadowCameraBottom = -50;
     light.shadowMapWidth = 1024;
     light.shadowMapHeight = 1024;
 
@@ -206,6 +206,8 @@ C3.Body = function(opts) {
   this.threeOpts = {color:0xffffff, ambient:0x333333, castShadow:false, receiveShadow:false};
   if (opts['color']) this.threeOpts['color'] = opts['color'];
   if (opts['ambient']) this.threeOpts['ambient'] = opts['ambient'];
+  if (opts['specular']) this.threeOpts['specular'] = opts['specular'];
+  if (opts['shininess']) this.threeOpts['shininess'] = opts['shininess'];
   if (opts['map']) this.threeOpts['map'] = opts['map'];
   if (opts['bumpMap']) {
     this.threeOpts['bumpMap'] = opts['bumpMap'];
@@ -273,6 +275,14 @@ C3.Body.prototype = {
   
   applyImpulse: function(impulse, point) {
     this.cannonBody.applyImpulse(impulse, point);
+  },
+
+  addEventListener: function(eventName, listener) {
+    this.cannonBody.addEventListener(eventName, listener);
+  },
+
+  isEqual: function(obj) {
+    return this == obj || this.cannonBody == obj;
   },
 
   sync: function() {
