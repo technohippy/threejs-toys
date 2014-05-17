@@ -77,15 +77,18 @@ C3.World = function(opts) {
   if (!this.cannonWorld) {
     this.cannonWorld = new CANNON.World();
     //this.cannonWorld.allowSleep = true;
-    this.cannonWorld.gravity.set(0,0,-9.82);
+    //this.cannonWorld.gravity.set(0,0,-9.82);
+    this.cannonWorld.gravity.set(0,-9.82,0);
     this.cannonWorld.broadphase = new CANNON.NaiveBroadphase();
   }
 
   this.threeCamera = opts.camera;
   if (!this.threeCamera) {
     this.threeCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight);
-    this.threeCamera.position = new THREE.Vector3(2, -9, 6);
-    this.threeCamera.lookAt(new THREE.Vector3(2, 15, 0));
+    //this.threeCamera.position = new THREE.Vector3(2, -9, 6);
+    //this.threeCamera.lookAt(new THREE.Vector3(2, 15, 0));
+    this.threeCamera.position = new THREE.Vector3(-20, 6, 8);
+    this.threeCamera.lookAt(new THREE.Vector3(10, 6, 8));
     this.cameraAdded = false;
   }
 
@@ -147,7 +150,7 @@ C3.World.prototype = {
   addDirectionalLight: function(color, opts) {
     // TODO
     var light = new THREE.DirectionalLight(color || 0xffffff);
-    light.position = new THREE.Vector3(5, -5, 10);
+    light.position = new THREE.Vector3(-5, 10, -5);
     light.castShadow = true;
     light.shadowBias = 0.0001;
     if (C3.DEBUG) light.shadowCameraVisible = true;
@@ -334,14 +337,22 @@ C3.Ground = function(opts) {
   if (typeof(opts['fixed']) === 'undefined') opts['fixed'] = true;
   if (typeof(opts['receiveShadow']) === 'undefined') opts['receiveShadow'] = true;
   C3.Body.call(this, opts);
+  this.quaternion = new CANNON.Quaternion();
+  this.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2)
 };
 
 C3.Ground.prototype = Object.create(C3.Body.prototype);
 C3.Ground.prototype.constructor = C3.Ground;
 C3.Ground.prototype.constructThreeGeometry = function() {
   return new THREE.BoxGeometry(1000, 1000, 0.1);
+  //return new THREE.BoxGeometry(1000, 0.1, 1000);
 };
 C3.Ground.prototype.constructCannonShape = function() {
   return new CANNON.Plane();
+  /*
+  var plane = new CANNON.Plane();
+  plane.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+  return plane;
+  */
 };
 C3.Ground.prototype.sync = function() {};
