@@ -45,6 +45,10 @@ C3.Vector3.prototype = {
     this.listeners.forEach(function(listener) {
       listener(this);
     }, this);
+  },
+
+  copy: function(v) {
+    this.set(v.x, v.y, v.z);
   }
 };
 
