@@ -204,7 +204,8 @@ C3.World.prototype = {
     this.render();
   },
 
-  start: function(msec) {
+  start: function(msec, callback) {
+    if (!callback) callback = function() {};
     if (this.isStarted) {
       this.isStopped = false;
     }
@@ -214,6 +215,7 @@ C3.World.prototype = {
         var _start = function() {
           this.stepRender(msec);
           requestAnimationFrame(_start.bind(this));
+          callback();
         }.bind(this);
         _start();
       }.bind(this));

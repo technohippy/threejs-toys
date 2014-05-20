@@ -40,15 +40,41 @@ function createPost(size, position, opts) {
   return createBox(size, position, opts);
 }
 
+var slingshotMaterial = new THREE.MeshPhongMaterial({
+  map:BOARD_TEXTURE, 
+  transparent:true,
+  opacity:0.5, 
+  blending:THREE.NormalBlending
+});
+function createSlingshotMesh() {
+  var slingshotGeometry = new THREE.Geometry();
+  var barGeometry = new THREE.CylinderGeometry(0.2, 0.2, 2.5, 8);
+  var bar1 = new THREE.Mesh(barGeometry);
+  bar1.position.set(0, 2.5/2, 0);
+  var bar2 = new THREE.Mesh(barGeometry);
+  bar2.position.set(2.5/2*Math.sin(Math.PI/4), 2.5+2.5/2*Math.sin(Math.PI/4), 0);
+  bar2.quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), -Math.PI/4);
+  var bar3 = new THREE.Mesh(barGeometry);
+  bar3.position.set(-2.5/2*Math.sin(Math.PI/4), 2.5+2.5/2*Math.sin(Math.PI/4), 0);
+  bar3.quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI/4);
+  THREE.GeometryUtils.merge(slingshotGeometry, bar1);
+  THREE.GeometryUtils.merge(slingshotGeometry, bar2);
+  THREE.GeometryUtils.merge(slingshotGeometry, bar3);
+  var slingshot = new THREE.Mesh(slingshotGeometry, slingshotMaterial);
+  slingshot.castShadow = true;
+  return slingshot;
+}
+
+// construct world
 var world = new C3.World();
 world.addDirectionalLight(0xffffff);
 world.addAmbientLight(0x666666);
 world.fog = new THREE.FogExp2(0xccccff, 0.010);
 
 // angry birds
-var bird = new C3.Sphere(0.6, {mass:1.1, map:ANGRY_BIRD_TEXTURE, ambient:0x999999});
-//bird.position.set(1, 0.6, -2);
-bird.position.set(0, 2.5 + 2.5*Math.sin(Math.PI/4), 0);
+var birdStartPosition = new THREE.Vector3(0, 2.5 + 2.5*Math.sin(Math.PI/4), 0);
+var bird = new C3.Sphere(0.5, {mass:1.1, map:ANGRY_BIRD_TEXTURE, ambient:0x999999});
+bird.position.copy(birdStartPosition);
 bird.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
 world.add(bird);
 
@@ -150,29 +176,16 @@ var ground = new C3.Ground({map:GRASS_TEXTURE});
 world.add(ground);
 
 // slingshot
-var slingshotGeometry = new THREE.Geometry();
-var barGeometry = new THREE.CylinderGeometry(0.2, 0.2, 2.5, 8);
-var bar1 = new THREE.Mesh(barGeometry);
-bar1.position.set(0, 2.5/2, 0);
-var bar2 = new THREE.Mesh(barGeometry);
-bar2.position.set(2.5/2*Math.sin(Math.PI/4), 2.5+2.5/2*Math.sin(Math.PI/4), 0);
-bar2.quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), -Math.PI/4);
-var bar3 = new THREE.Mesh(barGeometry);
-bar3.position.set(-2.5/2*Math.sin(Math.PI/4), 2.5+2.5/2*Math.sin(Math.PI/4), 0);
-bar3.quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI/4);
-THREE.GeometryUtils.merge(slingshotGeometry, bar1);
-THREE.GeometryUtils.merge(slingshotGeometry, bar2);
-THREE.GeometryUtils.merge(slingshotGeometry, bar3);
-var slingshot = new THREE.Mesh(slingshotGeometry, new THREE.MeshPhongMaterial({
-  map:BOARD_TEXTURE, 
-  transparent:true,
-  opacity:0.5, 
-  blending:THREE.NormalBlending
-}));
-slingshot.castShadow = true;
-world.threeScene.add(slingshot);
+world.threeScene.add(createSlingshotMesh());
 
-world.start(1.0/24.0);
+world.start(1.0/24.0, function() {
+  world.threeCamera.position.set(
+    bird.threeMesh.position.x, 
+    bird.threeMesh.position.y, 
+    bird.threeMesh.position.z - 5
+  );
+  world.threeCamera.lookAt(piggy.threeMesh.position);
+});
 world.stop();
 
 piggy.addEventListener('collide', function(evt) {
@@ -185,6 +198,7 @@ piggy.addEventListener('collide', function(evt) {
   }
 });
 
+/*
 window.addEventListener('click', function() {
   //var f = 800;
   var f = 900;
@@ -192,5 +206,68 @@ window.addEventListener('click', function() {
   var impulse = new CANNON.Vec3(0, f * dt, f * dt);
   // TODO
   bird.applyImpulse(impulse, bird.cannonBody.position);
-world.isStopped = false;
+  world.isStopped = false;
+slingshotMaterial.opacity = 1;
+});
+*/
+
+var isDragging = false;
+var dragStartMousePosition;
+var projector = new THREE.Projector();
+document.addEventListener('mousedown', function(event) {
+  dragStartMousePosition = new THREE.Vector3(event.clientX, event.clientY, 0);
+  var vector = new THREE.Vector3(
+    (event.clientX / window.innerWidth) * 2 - 1, 
+    -(event.clientY / window.innerHeight) * 2 + 1, 
+    0.5
+  );
+  var camera = world.threeCamera;
+  projector.unprojectVector(vector, camera);
+  var ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+  var intersects = ray.intersectObjects([bird.threeMesh]);
+  if (0 < intersects.length) {
+    isDragging = true;
+  }
+});
+document.addEventListener('mousemove', function(event) {
+  if (isDragging) {
+    var currentMousePosition = new THREE.Vector3(event.clientX, event.clientY, 0);
+    var dist = dragStartMousePosition.distanceTo(currentMousePosition);
+    var vec = new THREE.Vector3().subVectors(currentMousePosition, dragStartMousePosition);
+    var angle = Math.acos(vec.dot(new THREE.Vector3(0, 1, 0)) / vec.length());
+    if (vec.x < 0) angle *= -1;
+    bird.position.set(
+      birdStartPosition.x - dist/100 * Math.sin(angle), 
+      birdStartPosition.y - dist/100 * Math.cos(angle), 
+      birdStartPosition.z - dist/100
+    );
+  }
+//  console.log("dist:" + dist + " angle:" + (angle/Math.PI*180));
+});
+document.addEventListener('mouseup', function(event) {
+  isDragging = false;
+
+  var currentMousePosition = new THREE.Vector3(event.clientX, event.clientY, 0);
+  var dist = dragStartMousePosition.distanceTo(currentMousePosition);
+  if (200 < dist) dist = 200;
+  var vec = new THREE.Vector3().subVectors(currentMousePosition, dragStartMousePosition);
+  var angle = Math.acos(vec.dot(new THREE.Vector3(0, 1, 0)) / vec.length());
+  if (vec.x < 0) angle *= -1;
+  bird.position.set(
+    birdStartPosition.x - dist/100 * Math.sin(angle), 
+    birdStartPosition.y - dist/100 * Math.cos(angle), 
+    birdStartPosition.z - dist/100
+  );
+
+  var f = dist * 5;
+  var dt = 1/60;
+  var impulseDir = new CANNON.Vec3(
+    0.15 * Math.sin(angle),
+    Math.cos(angle),
+    1
+  );
+  var impulse = impulseDir.mult(f * dt);
+  bird.applyImpulse(impulse, bird.cannonBody.position); // TODO
+  world.isStopped = false;
+slingshotMaterial.opacity = 1;
 });
