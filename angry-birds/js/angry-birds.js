@@ -1,3 +1,5 @@
+"use strict";
+
 // vars
 var dx, dz;
 
@@ -45,7 +47,8 @@ world.fog = new THREE.FogExp2(0xccccff, 0.010);
 
 // angry birds
 var bird = new C3.Sphere(0.6, {mass:1.1, map:ANGRY_BIRD_TEXTURE, ambient:0x999999});
-bird.position.set(1, 0.6, -2);
+//bird.position.set(1, 0.6, -2);
+bird.position.set(0, 2.5 + 2.5*Math.sin(Math.PI/4), 0);
 bird.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
 world.add(bird);
 
@@ -56,7 +59,7 @@ world.add(createBoard(
   {x:DEN_X, y:baseHeight, z:DEN_Z}, 
   {fixed:true, color:0x660000, receiveShadow:true}
 ));
-baseHeight += 0.2;
+baseHeight += 0.2/2;
 
 world.add(createBox(
   {width:8, height:1.4, depth:0.4},
@@ -96,7 +99,7 @@ for (dx = -0.6; dx <= 0.6; dx += 1.2) {
   for (dz = -0.6; dz <= 0.6; dz += 1.2) {
     world.add(createPost(
       {width:0.6, height:4, depth:0.6},
-      {x:DEN_X-dx, y:baseHeight+4/2, z:DEN_Z-dz},
+      {x:DEN_X-dx, y:baseHeight+4/2+0.2, z:DEN_Z-dz},
       {color:0x00ffff, shininess:200}
     ));
   }
@@ -104,7 +107,7 @@ for (dx = -0.6; dx <= 0.6; dx += 1.2) {
 
 world.add(createBoard(
   {width:3, height:0.2, depth:3},
-  {x:DEN_X, y:baseHeight+4+0.2/2, z:DEN_Z}
+  {x:DEN_X, y:baseHeight+4+0.2+0.2/2, z:DEN_Z}
 ));
 
 // top frame
@@ -125,28 +128,52 @@ world.add(createBoard(
 
 // piggy
 var piggy = new C3.Sphere(0.6, {mass:0.5, map:PIGGY_TEXTURE, ambient:0x999999});
-piggy.position.set(DEN_X, baseHeight+0.6/2, DEN_Z);
+piggy.position.set(DEN_X, baseHeight+0.2+0.6/2, DEN_Z);
 world.add(piggy);
 
 // top
 baseHeight += 4.4;
 world.add(createBox(
   {width:1, height:1, depth:1},
-  {x:DEN_X, y:baseHeight+1/2, z:DEN_Z},
+  {x:DEN_X, y:baseHeight+0.2+1/2, z:DEN_Z},
   {color:0x999999}
 ));
 
 baseHeight += 1;
 world.add(createPost(
   {width:0.6, height:1, depth:0.6},
-  {x:DEN_X, y:baseHeight+1/2, z:DEN_Z}
+  {x:DEN_X, y:baseHeight+0.2+1/2, z:DEN_Z}
 ));
 
 // ground
 var ground = new C3.Ground({map:GRASS_TEXTURE});
 world.add(ground);
 
+// slingshot
+var slingshotGeometry = new THREE.Geometry();
+var barGeometry = new THREE.CylinderGeometry(0.2, 0.2, 2.5, 8);
+var bar1 = new THREE.Mesh(barGeometry);
+bar1.position.set(0, 2.5/2, 0);
+var bar2 = new THREE.Mesh(barGeometry);
+bar2.position.set(2.5/2*Math.sin(Math.PI/4), 2.5+2.5/2*Math.sin(Math.PI/4), 0);
+bar2.quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), -Math.PI/4);
+var bar3 = new THREE.Mesh(barGeometry);
+bar3.position.set(-2.5/2*Math.sin(Math.PI/4), 2.5+2.5/2*Math.sin(Math.PI/4), 0);
+bar3.quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI/4);
+THREE.GeometryUtils.merge(slingshotGeometry, bar1);
+THREE.GeometryUtils.merge(slingshotGeometry, bar2);
+THREE.GeometryUtils.merge(slingshotGeometry, bar3);
+var slingshot = new THREE.Mesh(slingshotGeometry, new THREE.MeshPhongMaterial({
+  map:BOARD_TEXTURE, 
+  transparent:true,
+  opacity:0.5, 
+  blending:THREE.NormalBlending
+}));
+slingshot.castShadow = true;
+world.threeScene.add(slingshot);
+
 world.start(1.0/24.0);
+world.stop();
 
 piggy.addEventListener('collide', function(evt) {
   if (bird.isEqual(evt.with)) {
@@ -159,9 +186,11 @@ piggy.addEventListener('collide', function(evt) {
 });
 
 window.addEventListener('click', function() {
-  var f = 1000;
+  //var f = 800;
+  var f = 900;
   var dt = 1/60;
   var impulse = new CANNON.Vec3(0, f * dt, f * dt);
   // TODO
   bird.applyImpulse(impulse, bird.cannonBody.position);
+world.isStopped = false;
 });

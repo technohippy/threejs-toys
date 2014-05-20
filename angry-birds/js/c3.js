@@ -1,3 +1,5 @@
+"use strict";
+
 var C3 = C3 || {};
 //C3.DEBUG = true;
 
@@ -89,8 +91,16 @@ C3.World = function(opts) {
   this.threeCamera = opts.camera;
   if (!this.threeCamera) {
     this.threeCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight);
+if (true) {
+    //this.threeCamera.position = new THREE.Vector3(0, 6, -5);
+    //this.threeCamera.lookAt(new THREE.Vector3(0, 6, 5));
+    this.threeCamera.position = new THREE.Vector3(0, 3, -10);
+    this.threeCamera.lookAt(new THREE.Vector3(0, 3, 5));
+}
+else {
     this.threeCamera.position = new THREE.Vector3(-30, 6, 13);
     this.threeCamera.lookAt(new THREE.Vector3(10, 6, 13));
+}
     this.cameraAdded = false;
   }
 
@@ -110,6 +120,9 @@ C3.World = function(opts) {
       //camera.updateProjectionMatrix();
     }, false);
   }
+
+  this.isStarted = false;
+  this.isStopped = false;
 
   ['allowSleep', 'broadphase'].forEach(function(prop) {
     C3.delegateProperty(this, prop, this.cannonWorld);
@@ -152,7 +165,7 @@ C3.World.prototype = {
   addDirectionalLight: function(color, opts) {
     // TODO
     var light = new THREE.DirectionalLight(color || 0xffffff);
-    light.position = new THREE.Vector3(-5, 10, -5);
+    light.position = new THREE.Vector3(-10, 20, -5);
     light.castShadow = true;
     light.shadowBias = 0.0001;
     if (C3.DEBUG) light.shadowCameraVisible = true;
@@ -187,18 +200,28 @@ C3.World.prototype = {
   },
 
   stepRender: function(msec) {
-    this.step(msec);
+    if (!this.isStopped) this.step(msec);
     this.render();
   },
 
   start: function(msec) {
-    window.addEventListener('DOMContentLoaded', function() {
-      document.body.appendChild(this.domElement);
-      (function() {
-        this.stepRender(msec);
-        requestAnimationFrame(arguments.callee.bind(this));
-      }.bind(this))();
-    }.bind(this));
+    if (this.isStarted) {
+      this.isStopped = false;
+    }
+    else {
+      window.addEventListener('DOMContentLoaded', function() {
+        document.body.appendChild(this.domElement);
+        var _start = function() {
+          this.stepRender(msec);
+          requestAnimationFrame(_start.bind(this));
+        }.bind(this);
+        _start();
+      }.bind(this));
+    }
+  },
+
+  stop: function() {
+    this.isStopped = true;
   }
 };
 
@@ -266,6 +289,7 @@ C3.Body.prototype = {
     this.cannonBody.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w);
     if (this.cannonOpts['linearDamping']) this.cannonBody.linearDamping = this.cannonOpts['linearDamping'];
     if (this.cannonOpts['angularDamping']) this.cannonBody.angularDamping = this.cannonOpts['angularDamping'];
+    if (this.cannonOpts['sleepState']) this.cannonBody.sleepState = this.cannonOpts['sleepState'];
 
     this.position.listeners.push(function(p) {
       this.threeMesh.position.copy(p);
