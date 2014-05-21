@@ -40,12 +40,6 @@ function createPost(size, position, opts) {
   return createBox(size, position, opts);
 }
 
-var slingshotMaterial = new THREE.MeshPhongMaterial({
-  map:BOARD_TEXTURE, 
-  transparent:true,
-  opacity:0.5, 
-  blending:THREE.NormalBlending
-});
 function createSlingshotMesh() {
   var slingshotGeometry = new THREE.Geometry();
   var barGeometry = new THREE.CylinderGeometry(0.2, 0.2, 2.5, 8);
@@ -58,7 +52,12 @@ function createSlingshotMesh() {
   
   THREE.GeometryUtils.merge(slingshotGeometry, bar);
   THREE.GeometryUtils.merge(slingshotGeometry, arm);
-  var slingshot = new THREE.Mesh(slingshotGeometry, slingshotMaterial);
+  var slingshot = new THREE.Mesh(slingshotGeometry, new THREE.MeshPhongMaterial({
+    map:BOARD_TEXTURE, 
+    transparent:true,
+    opacity:0.5, 
+    blending:THREE.NormalBlending
+  }));
   slingshot.castShadow = true;
   return slingshot;
 }
@@ -70,16 +69,14 @@ world.addAmbientLight(0x666666);
 world.fog = new THREE.FogExp2(0xccccff, 0.010);
 
 // angry birds
-var birdsMaterial = new THREE.MeshPhongMaterial({
+var birdStartPosition = new THREE.Vector3(0, 2.5/*bar*/ + 2/*arm*/, 0);
+var bird = new C3.Sphere(0.5, {mass:1.1, threeMaterial:new THREE.MeshPhongMaterial({
   map:ANGRY_BIRD_TEXTURE, 
   ambient:0x999999,
   transparent:true,
   opacity:0.5, 
   blending:THREE.NormalBlending
-});
-var birdStartPosition = new THREE.Vector3(0, 2.5/*bar*/ + 2/*arm*/, 0);
-//var bird = new C3.Sphere(0.5, {mass:1.1, map:ANGRY_BIRD_TEXTURE, ambient:0x999999});
-var bird = new C3.Sphere(0.5, {mass:1.1, threeMaterial:birdsMaterial});
+})});
 bird.position.copy(birdStartPosition);
 bird.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
 world.add(bird);
@@ -182,7 +179,8 @@ var ground = new C3.Ground({map:GRASS_TEXTURE});
 world.add(ground);
 
 // slingshot
-world.threeScene.add(createSlingshotMesh());
+var slingshot = createSlingshotMesh();
+world.threeScene.add(slingshot);
 
 world.start(1.0/24.0, function() {
   world.threeCamera.position.set(
@@ -277,8 +275,8 @@ document.addEventListener('mouseup', function(event) {
   var impulse = impulseDir.mult(f * dt);
   bird.applyImpulse(impulse, bird.cannonBody.position); // TODO
   world.isStopped = false;
-slingshotMaterial.opacity = 1;
-birdsMaterial.opacity = 1;
+  slingshot.material.opacity = 1;
+  bird.threeMesh.material.opacity = 1;
 });
 document.addEventListener('keypress', function(event) {
   if (event.charCode == 13) { // enter
@@ -289,8 +287,8 @@ document.addEventListener('keypress', function(event) {
       world.stop();
       bird.position.copy(birdStartPosition);
       bird.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
-slingshotMaterial.opacity = 0.5;
-birdsMaterial.opacity = 0.5;
+      slingshot.material.opacity = 0.5;
+      bird.threeMesh.material.opacity = 0.5;
     }
   }
 });
