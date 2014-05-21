@@ -86,6 +86,8 @@ C3.World = function(opts) {
     //this.cannonWorld.gravity.set(0,0,-9.82);
     this.cannonWorld.gravity.set(0,-9.82,0);
     this.cannonWorld.broadphase = new CANNON.NaiveBroadphase();
+this.cannonWorld.solver.iterations = 20;
+this.cannonWorld.solver.tolerance = 0;
   }
 
   this.threeCamera = opts.camera;
@@ -246,6 +248,7 @@ C3.Body = function(opts) {
   if (opts['bumpScale']) this.threeOpts['bumpScale'] = opts['bumpScale'];
   if (opts['castShadow']) this.threeOpts['castShadow'] = true;
   if (opts['receiveShadow']) this.threeOpts['receiveShadow'] = true;
+  if (opts['threeMaterial']) this.threeOpts['threeMaterial'] = opts['threeMaterial'];
 
   this.cannonOpts = {mass:1};
   if (opts['mass']) this.cannonOpts['mass'] = opts['mass'];
@@ -269,16 +272,19 @@ C3.Body.prototype = {
 
   construct: function() {
     var geometry = this.constructThreeGeometry();
-    var materialOpts = {
-      color:this.threeOpts['color'],
-      ambient:this.threeOpts['ambient']
-    };
-    if (this.threeOpts['map']) materialOpts['map'] = this.threeOpts['map'];
-    if (this.threeOpts['bumpMap']) {
-      materialOpts['bumpMap'] = this.threeOpts['bumpMap'];
-      materialOpts['bumpScale'] = this.threeOpts['bumpScale'];
+    var material = this.threeOpts['threeMaterial'];
+    if (!material) {
+      var materialOpts = {
+        color:this.threeOpts['color'],
+        ambient:this.threeOpts['ambient']
+      };
+      if (this.threeOpts['map']) materialOpts['map'] = this.threeOpts['map'];
+      if (this.threeOpts['bumpMap']) {
+        materialOpts['bumpMap'] = this.threeOpts['bumpMap'];
+        materialOpts['bumpScale'] = this.threeOpts['bumpScale'];
+      }
+      material = new THREE.MeshPhongMaterial(materialOpts);
     }
-    var material = new THREE.MeshPhongMaterial(materialOpts);
     this.threeMesh = new THREE.Mesh(geometry, material);
     if (this.threeOpts['castShadow']) this.threeMesh.castShadow = true;
     if (this.threeOpts['receiveShadow']) this.threeMesh.receiveShadow = true;
