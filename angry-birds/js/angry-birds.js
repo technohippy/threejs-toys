@@ -70,13 +70,18 @@ world.fog = new THREE.FogExp2(0xccccff, 0.010);
 
 // angry birds
 var birdStartPosition = new THREE.Vector3(0, 2.5/*bar*/ + 2/*arm*/, 0);
-var bird = new C3.Sphere(0.5, {mass:1.1, threeMaterial:new THREE.MeshPhongMaterial({
-  map:ANGRY_BIRD_TEXTURE, 
-  ambient:0x999999,
-  transparent:true,
-  opacity:0.5, 
-  blending:THREE.NormalBlending
-})});
+var bird = new C3.Sphere(0.5, {
+  mass:1.1, 
+  angularDamping:0.8,
+  threeMaterial:new THREE.MeshPhongMaterial({
+    map:ANGRY_BIRD_TEXTURE, 
+    ambient:0x999999,
+    transparent:true,
+    opacity:0.5, 
+    blending:THREE.NormalBlending
+  }),
+  cannonMaterial:world.cannonWorld.defaultMaterial
+});
 bird.position.copy(birdStartPosition);
 bird.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
 world.add(bird);
@@ -156,7 +161,7 @@ world.add(createBoard(
 ));
 
 // piggy
-var piggy = new C3.Sphere(0.6, {mass:0.5, map:PIGGY_TEXTURE, ambient:0x999999});
+var piggy = new C3.Sphere(0.6, {mass:0.5, angularDamping:0.8, map:PIGGY_TEXTURE, ambient:0x999999});
 piggy.position.set(DEN_X, baseHeight+0.2+0.6/2, DEN_Z);
 world.add(piggy);
 
@@ -175,6 +180,7 @@ world.add(createPost(
 ));
 
 // ground
+var groundMaterial = new CANNON.Material();
 var ground = new C3.Ground({map:GRASS_TEXTURE});
 world.add(ground);
 
