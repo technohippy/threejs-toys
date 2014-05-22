@@ -17,6 +17,8 @@ var DENSITY = 2;
 var DEN_X = 0;
 var DEN_Z = 24;
 
+var cameraDirection = new THREE.Vector3(0, 0, 5);
+
 // functions
 function createBox(size, position, opts) {
   opts = opts || {};
@@ -48,7 +50,7 @@ function createSlingshotMesh() {
 
   var armGeometry = new THREE.TorusGeometry(2, 0.2, 8, 16, -Math.PI);
   var arm = new THREE.Mesh(armGeometry);
-  arm.position.set(0, 2.5+2, 0);
+  arm.position.set(0, 2.5+2+0.2-0.03, 0);
   
   THREE.GeometryUtils.merge(slingshotGeometry, bar);
   THREE.GeometryUtils.merge(slingshotGeometry, arm);
@@ -186,9 +188,15 @@ world.add(ground);
 
 // slingshot
 var slingshot = createSlingshotMesh();
+slingshot.position.z += 1;
 world.threeScene.add(slingshot);
 
+// init camera position
+world.threeCamera.position.copy(new THREE.Vector3().copy(bird.threeMesh.position).sub(cameraDirection));
+world.threeCamera.lookAt(bird.threeMesh.position);
+
 world.start(1.0/24.0, function() {
+  /*
   world.threeCamera.position.set(
     bird.threeMesh.position.x, 
     bird.threeMesh.position.y, 
@@ -196,6 +204,7 @@ world.start(1.0/24.0, function() {
     //bird.threeMesh.position.z - 10
   );
   world.threeCamera.lookAt(piggy.threeMesh.position);
+  */
 });
 world.stop();
 
@@ -209,20 +218,37 @@ piggy.addEventListener('collide', function(evt) {
   }
 });
 
-/*
-window.addEventListener('click', function() {
-  //var f = 800;
-  var f = 900;
-  var dt = 1/60;
-  var impulse = new CANNON.Vec3(0, f * dt, f * dt);
-  // TODO
-  bird.applyImpulse(impulse, bird.cannonBody.position);
-  world.isStopped = false;
-slingshotMaterial.opacity = 1;
-});
-*/
+function dragWorld(event) {
+  var dx = dragStartMousePosition.x - event.clientX;
+  var dy = dragStartMousePosition.y - event.clientY;
+  dragStartMousePosition = new THREE.Vector3(event.clientX, event.clientY, 0);
 
-var isDragging = false;
+  var yAxis = new THREE.Vector3(0, 1, 0);
+  var yawAngle = -dx / 5000 * Math.PI;
+  var yawMatrix = new THREE.Matrix4().makeRotationAxis(yAxis, yawAngle);
+  var xAxis = new THREE.Vector3(1, 0, 0);
+  var pitchAngle = dy / 5000 * Math.PI;
+  var pitchMatrix = new THREE.Matrix4().makeRotationAxis(xAxis, pitchAngle);
+  cameraDirection.applyMatrix4(yawMatrix);
+  cameraDirection.applyMatrix4(pitchMatrix);
+  world.threeCamera.position.copy(new THREE.Vector3().copy(bird.threeMesh.position).sub(cameraDirection));
+  world.threeCamera.lookAt(bird.threeMesh.position);
+}
+
+// TODO
+function dragBird(event) {
+  var currentMousePosition = new THREE.Vector3(event.clientX, event.clientY, 0);
+  var dist = dragStartMousePosition.distanceTo(currentMousePosition) / 1000;
+  bird.position.set(
+    birdStartPosition.x - cameraDirection.x * dist,
+    birdStartPosition.y - cameraDirection.y * dist,
+    birdStartPosition.z - cameraDirection.z * dist
+  );
+  return dist;
+}
+
+var isBirdDragging = false;
+var isWorldDragging = false;
 var dragStartMousePosition;
 var projector = new THREE.Projector();
 document.addEventListener('mousedown', function(event) {
@@ -237,52 +263,40 @@ document.addEventListener('mousedown', function(event) {
   var ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
   var intersects = ray.intersectObjects([bird.threeMesh]);
   if (0 < intersects.length) {
-    isDragging = true;
+    isBirdDragging = true;
+    isWorldDragging = false;
+  }
+  else {
+    isBirdDragging = false;
+    isWorldDragging = true;
   }
 });
 document.addEventListener('mousemove', function(event) {
-  if (!isDragging) return;
-
-  var currentMousePosition = new THREE.Vector3(event.clientX, event.clientY, 0);
-  var dist = dragStartMousePosition.distanceTo(currentMousePosition);
-  var vec = new THREE.Vector3().subVectors(currentMousePosition, dragStartMousePosition);
-  var angle = Math.acos(vec.dot(new THREE.Vector3(0, 1, 0)) / vec.length());
-  if (vec.x < 0) angle *= -1;
-  bird.position.set(
-    birdStartPosition.x - dist/100 * Math.sin(angle), 
-    birdStartPosition.y - dist/100 * Math.cos(angle), 
-    birdStartPosition.z - dist/100
-  );
+  if (isBirdDragging) {
+    dragBird(event);
+  }
+  else if (isWorldDragging) {
+    dragWorld(event);
+  }
 });
 document.addEventListener('mouseup', function(event) {
-  if (!isDragging) return;
+  if (isBirdDragging) {
+    isBirdDragging = false;
+    var dist = dragBird(event);
 
-  isDragging = false;
-
-  var currentMousePosition = new THREE.Vector3(event.clientX, event.clientY, 0);
-  var dist = dragStartMousePosition.distanceTo(currentMousePosition);
-  if (200 < dist) dist = 200;
-  var vec = new THREE.Vector3().subVectors(currentMousePosition, dragStartMousePosition);
-  var angle = Math.acos(vec.dot(new THREE.Vector3(0, 1, 0)) / vec.length());
-  if (vec.x < 0) angle *= -1;
-  bird.position.set(
-    birdStartPosition.x - dist/100 * Math.sin(angle), 
-    birdStartPosition.y - dist/100 * Math.cos(angle), 
-    birdStartPosition.z - dist/100
-  );
-
-  var f = dist * 5;
-  var dt = 1/60;
-  var impulseDir = new CANNON.Vec3(
-    0.15 * Math.sin(angle),
-    Math.cos(angle),
-    1
-  );
-  var impulse = impulseDir.mult(f * dt);
-  bird.applyImpulse(impulse, bird.cannonBody.position); // TODO
-  world.isStopped = false;
-  slingshot.material.opacity = 1;
-  bird.threeMesh.material.opacity = 1;
+    var f = dist * 5000;
+    var dt = 1/60;
+    var impulseDir = new CANNON.Vec3(cameraDirection.x, cameraDirection.y, cameraDirection.z);
+    impulseDir.normalize();
+    var impulse = impulseDir.mult(f * dt);
+    bird.applyImpulse(impulse, bird.cannonBody.position);
+    world.isStopped = false;
+    slingshot.material.opacity = 1;
+    bird.threeMesh.material.opacity = 1;
+  }
+  else if (isWorldDragging) {
+    isWorldDragging = false;
+  }
 });
 document.addEventListener('keypress', function(event) {
   if (event.charCode == 13) { // enter
@@ -295,6 +309,9 @@ document.addEventListener('keypress', function(event) {
       bird.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
       slingshot.material.opacity = 0.5;
       bird.threeMesh.material.opacity = 0.5;
+      cameraDirection = new THREE.Vector3(0, 0, 5);
+      world.threeCamera.position.copy(new THREE.Vector3().copy(bird.threeMesh.position).sub(cameraDirection));
+      world.threeCamera.lookAt(bird.threeMesh.position);
     }
   }
 });

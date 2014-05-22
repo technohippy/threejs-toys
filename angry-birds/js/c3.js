@@ -86,8 +86,6 @@ C3.World = function(opts) {
     //this.cannonWorld.gravity.set(0,0,-9.82);
     this.cannonWorld.gravity.set(0,-9.82,0);
     this.cannonWorld.broadphase = new CANNON.NaiveBroadphase();
-this.cannonWorld.solver.iterations = 20;
-this.cannonWorld.solver.tolerance = 0;
   }
 
   this.threeCamera = opts.camera;
@@ -96,8 +94,9 @@ this.cannonWorld.solver.tolerance = 0;
 if (true) {
     //this.threeCamera.position = new THREE.Vector3(0, 6, -5);
     //this.threeCamera.lookAt(new THREE.Vector3(0, 6, 5));
-    this.threeCamera.position = new THREE.Vector3(0, 3, -10);
-    this.threeCamera.lookAt(new THREE.Vector3(0, 3, 5));
+    this.threeCamera.position = new THREE.Vector3(0, 6+2, -10);
+    //this.threeCamera.position = new THREE.Vector3(0, 3, -10);
+    this.threeCamera.lookAt(new THREE.Vector3(0, 3+2, 5));
 }
 else {
     this.threeCamera.position = new THREE.Vector3(-30, 6, 13);
@@ -117,10 +116,9 @@ else {
     this.threeRenderer.setClearColor(0xccccff, 1); // TODO
     window.addEventListener('resize', function() {
       this.threeRenderer.setSize(window.innerWidth, window.innerHeight);
-      // TODO
-      //camera.aspect = window.innerWidth / window.innerHeight;
-      //camera.updateProjectionMatrix();
-    }, false);
+      this.threeCamera.aspect = window.innerWidth / window.innerHeight;
+      this.threeCamera.updateProjectionMatrix();
+    }.bind(this), false);
   }
 
   this.isStarted = false;
