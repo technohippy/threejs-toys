@@ -62,6 +62,9 @@ AngryBirds.Stage.prototype = {
   setupEventListeners: function() {
     this.piggies.forEach(function(piggy) {
       piggy.addEventListener('collide', function(evt) {
+        console.log(evt.with.mass);
+        console.log(evt.with.velocity.distanceTo(new CANNON.Vec3()));
+        console.log(piggy.cannonBody.velocity.distanceTo(new CANNON.Vec3()));
         if (this.game.bird.isEqual(evt.with)) {
           var hit = document.getElementById('hit');
           hit.classList.remove('hide');
@@ -287,6 +290,8 @@ AngryBirds.Game.prototype = {
   dragBird: function(event) {
     var currentMousePosition = new THREE.Vector3(event.clientX, event.clientY, 0);
     var dist = this.dragStartMousePosition.distanceTo(currentMousePosition) / 1000;
+//    if (0.4 < dist) dist = 0.4;
+
     this.bird.position.set(
       this.birdStartPosition.x - this.cameraDirection.x * dist,
       this.birdStartPosition.y - this.cameraDirection.y * dist,
@@ -330,15 +335,20 @@ AngryBirds.Game.prototype = {
       this.isBirdDragging = false;
       var dist = this.dragBird(event);
 
-      var f = dist * 5000;
+      var f = dist * 3800;
       var dt = 1/60;
-      var impulseDir = new CANNON.Vec3(this.cameraDirection.x, this.cameraDirection.y, this.cameraDirection.z);
-      impulseDir.normalize();
-      var impulse = impulseDir.mult(f * dt);
-      this.bird.applyImpulse(impulse, this.bird.cannonBody.position);
-      this.world.isStopped = false;
-      this.slingshot.material.opacity = 1;
-      this.bird.threeMesh.material.opacity = 1;
+      if (f < 600) {
+        this.ready();
+      }
+      else {
+        var impulseDir = new CANNON.Vec3(this.cameraDirection.x, this.cameraDirection.y, this.cameraDirection.z);
+        impulseDir.normalize();
+        var impulse = impulseDir.mult(f * dt);
+        this.bird.applyImpulse(impulse, this.bird.cannonBody.position);
+        this.world.isStopped = false;
+        this.slingshot.material.opacity = 1;
+        this.bird.threeMesh.material.opacity = 1;
+      }
     }
     else if (this.isWorldDragging) {
       this.isWorldDragging = false;
@@ -352,13 +362,7 @@ AngryBirds.Game.prototype = {
       }
       else {
         this.world.stop();
-        this.bird.position.copy(this.birdStartPosition);
-        this.bird.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
-        this.slingshot.material.opacity = 0.5;
-        this.bird.threeMesh.material.opacity = 0.5;
-        this.cameraDirection = new THREE.Vector3(0, 0, 5);
-        this.world.threeCamera.position.copy(new THREE.Vector3().copy(this.bird.threeMesh.position).sub(this.cameraDirection));
-        this.world.threeCamera.lookAt(this.bird.threeMesh.position);
+        this.ready();
       }
     }
   },
@@ -371,10 +375,13 @@ AngryBirds.Game.prototype = {
   },
 
   ready: function() {
+    this.isBirdDragging = false;
+    this.isWorldDragging = false;
+    this.bird.cannonBody.velocity.set(0, 0, 0);
     this.bird.position.copy(this.birdStartPosition);
     this.bird.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
-    this.slingshot.material.opacity = 0.5;
     this.bird.threeMesh.material.opacity = 0.5;
+    this.slingshot.material.opacity = 0.5;
     this.cameraDirection = new THREE.Vector3(0, 0, 5);
     this.world.threeCamera.position.copy(new THREE.Vector3().copy(this.bird.threeMesh.position).sub(this.cameraDirection));
     this.world.threeCamera.lookAt(this.bird.threeMesh.position);
