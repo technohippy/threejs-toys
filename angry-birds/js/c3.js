@@ -146,6 +146,7 @@ C3.World.prototype = {
 
   add: function(body) {
     if (!body.isConstructed) body.construct();
+    body.world = this;
     this.bodies.push(body);
     this.cannonWorld.add(body.cannonBody);
     this.threeScene.add(body.threeMesh);
@@ -228,6 +229,7 @@ C3.World.prototype = {
 };
 
 C3.Body = function(opts) {
+  this.world = null;
   this.isConstrucrted = false;
   opts = opts || {};
   this.position = new C3.Vector3(0, 0, 0);
@@ -312,13 +314,41 @@ C3.Body.prototype = {
 
     this.isConstrucrted = true;
   },
+
+  removeFromWorld: function() {
+    this.world.threeScene.remove(this.threeMesh);
+//    this.world.cannonWorld.remove(this.cannonBody);
+    this.cannonBody.mass = 0;
+    this.cannonBody.position.set(0, -100, 0);
+  },
   
   applyImpulse: function(impulse, point) {
     this.cannonBody.applyImpulse(impulse, point);
   },
 
   addEventListener: function(eventName, listener) {
-    this.cannonBody.addEventListener(eventName, listener);
+    if (0 <= ['collide'].indexOf(eventName)) {
+      this.cannonBody.addEventListener(eventName, listener);
+    }
+  },
+
+  //http://zachberry.com/blog/tracking-3d-objects-in-2d-with-three-js/
+  getPosition2D: function() {
+    var projector = new THREE.Projector();
+    var camera = this.world.threeCamera;
+    if (camera instanceof THREE.PerspectiveCamera) {
+      var p = this.threeMesh.matrixWorld.getPosition().clone();
+      var v = projector.projectVector(p, camera);
+      var percX = (v.x + 1) / 2;
+      var percY = (-v.y + 1) / 2;
+      return {left: percX * window.innerWidth - 150/2, top: percY * window.innerHeight - 150};
+    }
+    else if (camera instanceof THREE.OrthographicCamera) {
+      // TODO
+    }
+    else {
+      throw 'Unknown camera';
+    }
   },
 
   isEqual: function(obj) {

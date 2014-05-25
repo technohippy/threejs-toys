@@ -1,0 +1,19 @@
+body { margin:0; overflow:hidden; }
+.hide { display:none; }
+#hit {
+  position:absolute;
+  top:0;
+  left:0;
+  background-image:url(image/damage_frame.png);
+  background-position:center center;
+  background-repeat:none;
+  width:150px;
+  height:100px;
+  padding-top:50px;
+  text-align:center; 
+  vertical-align:middle;
+  font-size:1.5em; 
+  font-weight:bold;
+  color:black;
+  z-index:999;
+}

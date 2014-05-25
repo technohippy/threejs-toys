@@ -28,6 +28,46 @@ AngryBirds.Setting = function(density) {
   this.density = density || 2;
 };
 
+AngryBirds.Piggy = function(radius, opts) {
+  opts = opts || {};
+  opts.map = AngryBirds.Texture.PIGGY;
+  C3.Sphere.call(this, radius, opts);
+  this.damage = 0;
+  this.damageListeners = [];
+  this.dieListeners = [];
+};
+
+AngryBirds.Piggy.prototype = Object.create(C3.Sphere.prototype);
+AngryBirds.Piggy.prototype.constructor = AngryBirds.Piggy;
+AngryBirds.Piggy.prototype.construct = function() {
+  C3.Sphere.prototype.construct.call(this);
+  this.addEventListener('collide', function(evt) {
+    var mass = evt.with.mass === 0 ? 100 : evt.with.mass;
+    var impact = evt.with.velocity.distanceTo(this.cannonBody.velocity) * mass;
+    this.addDamage(impact);
+  }.bind(this));
+};
+AngryBirds.Piggy.prototype.addDamage = function(damage) {
+  if (damage < 15) return;
+  this.damageListeners.forEach(function(listener) {
+    listener(this, damage);
+  }, this);
+  this.damage += damage;
+  if (70 < this.damage) {
+    this.dieListeners.forEach(function(listener) {
+      listener(this);
+    }, this);
+    this.removeFromWorld();
+  }
+};
+AngryBirds.Piggy.prototype.addDamageListener = function(listener) {
+  this.damageListeners.push(listener);
+};
+AngryBirds.Piggy.prototype.addDieListener = function(listener) {
+  this.dieListeners.push(listener);
+};
+
+
 AngryBirds.Stage = function() {
   this.game = null;
   this.piggies = [];
@@ -62,17 +102,26 @@ AngryBirds.Stage.prototype = {
 
   setupEventListeners: function() {
     this.piggies.forEach(function(piggy) {
-      piggy.addEventListener('collide', function(evt) {
-        var impact = evt.with.velocity.distanceTo(piggy.cannonBody.velocity) * evt.with.mass;
-        console.log(impact); // TODO: 合計100くらいで破壊かな
-        if (this.game.bird.isEqual(evt.with)) {
-          var hit = document.getElementById('hit');
-          hit.classList.remove('hide');
-          setTimeout(function() {
-            hit.classList.add('hide');
-          }, 2000);
-        }
-      }.bind(this));
+      piggy.addDamageListener(function(piggy, damage) {
+        var p = piggy.getPosition2D();
+        var elm = document.getElementById('hit');
+        //elm.innerText = '' + Math.floor(damage) + '!!';
+        elm.innerText = 'Ouch!';
+        elm.style.left = p.left + 'px';
+        elm.style.top = p.top + 'px';
+        elm.className = 'show';
+        setTimeout(function() {elm.className = 'hide'}, 2000);
+      });
+      piggy.addDieListener(function(piggy) {
+        var p = piggy.getPosition2D();
+        var elm = document.getElementById('hit');
+        //elm.innerText = '' + Math.floor(damage) + '!!';
+        elm.innerText = 'Argh!!';
+        elm.style.left = p.left + 'px';
+        elm.style.top = p.top + 'px';
+        elm.className = 'show';
+        setTimeout(function() {elm.className = 'hide'}, 2000);
+      });
     }.bind(this));
   }
 };
@@ -160,7 +209,7 @@ AngryBirds.Stage1.prototype.constructOn = function(world) {
   ));
 
   // piggy
-  var piggy = new C3.Sphere(0.6, {mass:0.5, angularDamping:0.8, map:AngryBirds.Texture.PIGGY, ambient:0x999999});
+  var piggy = new AngryBirds.Piggy(0.6, {mass:0.5, angularDamping:0.8, ambient:0x999999});
   piggy.position.set(this.denPosition.x, baseHeight+0.2+0.6/2, this.denPosition.z); // 7.8
   world.add(piggy);
   this.piggies.push(piggy);
@@ -256,6 +305,7 @@ AngryBirds.Game.prototype = {
     bar.position.set(0, 2.5/2, 0);
 
     var armGeometry = new THREE.TorusGeometry(2, 0.2, 8, 16, Math.PI);
+    //var armGeometry = new THREE.TorusGeometry(2, 0.2, 8, 16, -Math.PI);
     var arm = new THREE.Mesh(armGeometry);
     arm.position.set(0, 2.5+2+0.2-0.03, 0);
     arm.quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI);
