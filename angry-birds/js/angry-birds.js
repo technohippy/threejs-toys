@@ -6,6 +6,7 @@ var AngryBirds = {
     BIRD: THREE.ImageUtils.loadTexture('image/angry_birds.jpg'),
     PIGGY: THREE.ImageUtils.loadTexture('image/piggy.jpg'),
     BOARD: THREE.ImageUtils.loadTexture('image/board.jpg'),
+    POST: THREE.ImageUtils.loadTexture('image/post.jpg'),
     get GRASS() {
       if (!this._GRASS) {
         this._GRASS = THREE.ImageUtils.loadTexture('image/grass.jpg');
@@ -99,7 +100,7 @@ AngryBirds.Stage.prototype = {
   createPost: function(size, position, opts) {
     opts = opts || {};
     // TODO: 太さを指定しなくていいようにしたり
-    if (!opts.map && !opts.color) opts.map = AngryBirds.Texture.BOARD;
+    if (!opts.map && !opts.color) opts.map = AngryBirds.Texture.POST;
     return this.createBox(size, position, opts);
   },
 
@@ -240,6 +241,7 @@ AngryBirds.Game = function(opts) {
   this.setting = new AngryBirds.Setting(opts.density);
   this.mode = AngryBirds.Mode.SIGHT_SETTING;
   this.world = null;
+  this.skybox = null;
   this.slingshot = null;
   this.bird = null;
   this.birdStartPosition = new THREE.Vector3(0, 2.5/*bar*/ + 2/*arm*/, 0);
@@ -264,7 +266,8 @@ AngryBirds.Game.prototype = {
     this.world.threeScene.add(this.createLensFlare());
 
     // skybox
-    this.world.threeScene.add(this.createSkybox());
+    this.skybox = this.createSkybox();
+    this.world.threeScene.add(this.skybox);
 
     // ground
     var ground = new C3.Ground({map:AngryBirds.Texture.GRASS});
@@ -298,9 +301,7 @@ AngryBirds.Game.prototype = {
     lensFlare.add(textureFlare3, 70, 0.7, THREE.AdditiveBlending);
     lensFlare.add(textureFlare3, 120, 0.9, THREE.AdditiveBlending);
     lensFlare.add(textureFlare3, 70, 1.0, THREE.AdditiveBlending);
-    // TODO: ライトに合わせて場所を変更
-    //lensFlare.position = new THREE.Vector3(100, 100, 100);
-    lensFlare.position = new THREE.Vector3(-100, 200, -50);
+    lensFlare.position = new THREE.Vector3(-50, 200, -100);
     return lensFlare;
   },
 

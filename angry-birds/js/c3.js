@@ -166,7 +166,8 @@ C3.World.prototype = {
   addDirectionalLight: function(color, opts) {
     // TODO
     var light = new THREE.DirectionalLight(color || 0xffffff);
-    light.position = new THREE.Vector3(-10, 20, -5);
+    //light.position = new THREE.Vector3(-10, 20, -5);
+    light.position = new THREE.Vector3(-5, 20, -10);
     light.castShadow = true;
     light.shadowBias = 0.0001;
     if (C3.DEBUG) light.shadowCameraVisible = true;
