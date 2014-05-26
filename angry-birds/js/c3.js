@@ -407,15 +407,20 @@ C3.Ground = function(opts) {
 C3.Ground.prototype = Object.create(C3.Body.prototype);
 C3.Ground.prototype.constructor = C3.Ground;
 C3.Ground.prototype.constructThreeGeometry = function() {
-  return new THREE.BoxGeometry(1000, 1000, 0.1);
-  //return new THREE.BoxGeometry(1000, 0.1, 1000);
+//  return new THREE.BoxGeometry(1000, 1000, 0.1);
+  var simplexNoise = new SimplexNoise();
+  var planeGeometry = new THREE.PlaneGeometry(150, 150, 64, 64);
+  for (var i = 0; i < planeGeometry.vertices.length; i++) {
+    var vertex = planeGeometry.vertices[ i ];
+    //vertex.z = simplexNoise.noise(vertex.x / 20, vertex.y / 20);
+    //vertex.z = simplexNoise.noise(vertex.x / 40, vertex.y / 40);
+    vertex.z = -simplexNoise.noise(vertex.x / 40, vertex.y / 40);
+  }
+  planeGeometry.computeFaceNormals();
+  planeGeometry.computeVertexNormals();
+  return planeGeometry;
 };
 C3.Ground.prototype.constructCannonShape = function() {
   return new CANNON.Plane();
-  /*
-  var plane = new CANNON.Plane();
-  plane.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-  return plane;
-  */
 };
 C3.Ground.prototype.sync = function() {};

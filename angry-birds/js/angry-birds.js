@@ -35,6 +35,7 @@ AngryBirds.Piggy = function(radius, opts) {
   this.damage = 0;
   this.damageListeners = [];
   this.dieListeners = [];
+  this.isDead = false;
 };
 
 AngryBirds.Piggy.prototype = Object.create(C3.Sphere.prototype);
@@ -48,12 +49,14 @@ AngryBirds.Piggy.prototype.construct = function() {
   }.bind(this));
 };
 AngryBirds.Piggy.prototype.addDamage = function(damage) {
+  if (this.isDead) return;
   if (damage < 15) return;
   this.damageListeners.forEach(function(listener) {
     listener(this, damage);
   }, this);
   this.damage += damage;
-  if (70 < this.damage) {
+  if (100 < this.damage) {
+    this.isDead = true;
     this.dieListeners.forEach(function(listener) {
       listener(this);
     }, this);
@@ -257,6 +260,12 @@ AngryBirds.Game.prototype = {
     this.world.addAmbientLight(0x666666);
     this.world.fog = new THREE.FogExp2(0xccccff, 0.010);
 
+    // lens flare
+    this.world.threeScene.add(this.createLensFlare());
+
+    // skybox
+    this.world.threeScene.add(this.createSkybox());
+
     // ground
     var ground = new C3.Ground({map:AngryBirds.Texture.GRASS});
     //var ground = new C3.Ground({color:0x00ff00});
@@ -264,7 +273,7 @@ AngryBirds.Game.prototype = {
 
     // slingshot
     this.slingshot = this.createSlingshotMesh();
-    this.slingshot.position.z += 1;
+    //this.slingshot.position.z += 1;
     this.world.threeScene.add(this.slingshot);
 
     // bird
@@ -274,6 +283,55 @@ AngryBirds.Game.prototype = {
     this.world.add(this.bird);
 
     this.constructStage(this.world);
+  },
+  
+  createLensFlare: function() {
+    var textureFlare0 = THREE.ImageUtils.loadTexture('image/lensflare0.png');
+    var textureFlare2 = THREE.ImageUtils.loadTexture('image/lensflare2.png');
+    var textureFlare3 = THREE.ImageUtils.loadTexture('image/lensflare3.png');
+    var flareColor = new THREE.Color(0xffccdd);
+    var lensFlare = new THREE.LensFlare(textureFlare0, 700, 0.0, THREE.AdditiveBlending, flareColor);
+    lensFlare.add(textureFlare2, 512, 0.0, THREE.AdditiveBlending);
+    lensFlare.add(textureFlare2, 512, 0.0, THREE.AdditiveBlending);
+    lensFlare.add(textureFlare2, 512, 0.0, THREE.AdditiveBlending);
+    lensFlare.add(textureFlare3, 60, 0.6, THREE.AdditiveBlending);
+    lensFlare.add(textureFlare3, 70, 0.7, THREE.AdditiveBlending);
+    lensFlare.add(textureFlare3, 120, 0.9, THREE.AdditiveBlending);
+    lensFlare.add(textureFlare3, 70, 1.0, THREE.AdditiveBlending);
+    // TODO: ライトに合わせて場所を変更
+    //lensFlare.position = new THREE.Vector3(100, 100, 100);
+    lensFlare.position = new THREE.Vector3(-100, 200, -50);
+    return lensFlare;
+  },
+
+  createSkybox: function() {
+    var urls = [
+      'image/cube01.jpg',
+      'image/cube02.jpg',
+      'image/cube03.jpg',
+      'image/cube04.jpg',
+      'image/cube05.jpg',
+      'image/cube06.jpg'
+    ];
+
+    var cubemap = THREE.ImageUtils.loadTextureCube(urls); // load textures
+    cubemap.format = THREE.RGBFormat;
+
+    var shader = THREE.ShaderLib['cube']; // init cube shader from built-in lib
+    shader.uniforms['tCube'].value = cubemap; // apply textures to shader
+
+    var skyBoxMaterial = new THREE.ShaderMaterial( {
+      fragmentShader: shader.fragmentShader,
+      vertexShader: shader.vertexShader,
+      uniforms: shader.uniforms,
+      depthWrite: false,
+      side: THREE.BackSide
+    });
+
+    return new THREE.Mesh(
+      new THREE.CubeGeometry(150, 150, 150),
+      skyBoxMaterial
+    );
   },
 
   createBird: function(world) {
@@ -337,6 +395,7 @@ AngryBirds.Game.prototype = {
     this.cameraDirection.applyMatrix4(pitchMatrix);
     this.world.threeCamera.position.copy(new THREE.Vector3().copy(this.bird.threeMesh.position).sub(this.cameraDirection));
     this.world.threeCamera.lookAt(this.bird.threeMesh.position);
+    this.slingshot.lookAt(new THREE.Vector3(this.cameraDirection.x, 0, this.cameraDirection.z).add(this.slingshot.position));
   },
 
   dragBird: function(event) {
@@ -456,6 +515,7 @@ AngryBirds.Game.prototype = {
     this.cameraDirection = new THREE.Vector3(0, 0, 5);
     this.world.threeCamera.position.copy(new THREE.Vector3().copy(this.bird.threeMesh.position).sub(this.cameraDirection));
     this.world.threeCamera.lookAt(this.bird.threeMesh.position);
+    this.slingshot.lookAt(new THREE.Vector3(0, 0, 1).add(this.slingshot.position));
   },
 
   start: function() {
