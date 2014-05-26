@@ -7,6 +7,7 @@ var AngryBirds = {
     PIGGY: THREE.ImageUtils.loadTexture('image/piggy.jpg'),
     BOARD: THREE.ImageUtils.loadTexture('image/board.jpg'),
     POST: THREE.ImageUtils.loadTexture('image/post.jpg'),
+    ICE: THREE.ImageUtils.loadTexture('image/ice.jpg'),
     get GRASS() {
       if (!this._GRASS) {
         this._GRASS = THREE.ImageUtils.loadTexture('image/grass.jpg');
@@ -132,7 +133,8 @@ AngryBirds.Stage.prototype = {
 
 AngryBirds.Stage1 = function(denPosition) {
   AngryBirds.Stage.call(this);
-  this.denPosition =  denPosition || {x:0, z:24};
+  //this.denPosition =  denPosition || {x:0, z:24};
+  this.denPosition =  denPosition || {x:0, z:48};
 };
 
 AngryBirds.Stage1.prototype = Object.create(AngryBirds.Stage.prototype);
@@ -186,7 +188,8 @@ AngryBirds.Stage1.prototype.constructOn = function(world) {
       world.add(this.createPost(
         {width:0.6, height:4, depth:0.6},
         {x:this.denPosition.x-dx, y:baseHeight+4/2+0.2, z:this.denPosition.z-dz},
-        {color:0x00ffff, shininess:200}
+        //{color:0x00ffff, shininess:200}
+        {map:AngryBirds.Texture.ICE, shininess:200, bumpMap:AngryBirds.Texture.ICE}
       ));
     }
   }
@@ -260,7 +263,7 @@ AngryBirds.Game.prototype = {
     this.world = new C3.World();
     this.world.addDirectionalLight(0xffffff);
     this.world.addAmbientLight(0x666666);
-    this.world.fog = new THREE.FogExp2(0xccccff, 0.010);
+    this.world.fog = new THREE.FogExp2(0xccccff, 0.007);
 
     // lens flare
     this.world.threeScene.add(this.createLensFlare());
@@ -330,7 +333,7 @@ AngryBirds.Game.prototype = {
     });
 
     return new THREE.Mesh(
-      new THREE.CubeGeometry(150, 150, 150),
+      new THREE.CubeGeometry(300, 300, 300),
       skyBoxMaterial
     );
   },
@@ -465,9 +468,10 @@ AngryBirds.Game.prototype = {
         this.bird.applyImpulse(impulse, this.bird.cannonBody.position);
         this.world.isStopped = false;
         this.slingshot.material.opacity = 1;
-        this.bird.threeMesh.material.opacity = 1;
-        //this.mode = AngryBirds.Mode.FLYING;
-        this.mode = AngryBirds.Mode.SIDEVIEW;
+        this.bird.threeMesh.material.opacity = 0.5;
+        this.mode = AngryBirds.Mode.FLYING;
+        //this.bird.threeMesh.material.opacity = 1;
+        //this.mode = AngryBirds.Mode.SIDEVIEW;
       }
     }
     else if (this.isWorldDragging) {
@@ -531,8 +535,10 @@ AngryBirds.Game.prototype = {
       }
       else if (this.mode === AngryBirds.Mode.SIDEVIEW) {
         this.slingshot.material.opacity = 1;
-        this.world.threeCamera.position.set(-25, 15, 15);
-        this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 15));
+        //this.world.threeCamera.position.set(-25, 15, 15);
+        //this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 15));
+        this.world.threeCamera.position.set(-35, 15, 30);
+        this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 30));
       }
     }.bind(this));
     this.world.stop();

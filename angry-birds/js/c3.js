@@ -90,7 +90,8 @@ C3.World = function(opts) {
 
   this.threeCamera = opts.camera;
   if (!this.threeCamera) {
-    this.threeCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight);
+    //this.threeCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight);
+    this.threeCamera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight);
 if (true) {
     //this.threeCamera.position = new THREE.Vector3(0, 6, -5);
     //this.threeCamera.lookAt(new THREE.Vector3(0, 6, 5));
@@ -410,7 +411,7 @@ C3.Ground.prototype.constructor = C3.Ground;
 C3.Ground.prototype.constructThreeGeometry = function() {
 //  return new THREE.BoxGeometry(1000, 1000, 0.1);
   var simplexNoise = new SimplexNoise();
-  var planeGeometry = new THREE.PlaneGeometry(150, 150, 64, 64);
+  var planeGeometry = new THREE.PlaneGeometry(300, 300, 64, 64);
   for (var i = 0; i < planeGeometry.vertices.length; i++) {
     var vertex = planeGeometry.vertices[ i ];
     //vertex.z = simplexNoise.noise(vertex.x / 20, vertex.y / 20);
