@@ -127,7 +127,8 @@ AngryBirds.Stage.prototype = {
         elm.style.top = p.top + 'px';
         elm.className = 'show';
         setTimeout(function() {elm.className = 'hide'}, 2000);
-      });
+        this.game.addSmoke(piggy);
+      }.bind(this));
     }.bind(this));
   }
 };
@@ -383,6 +384,39 @@ AngryBirds.Game.prototype = {
     }));
     slingshot.castShadow = true;
     return slingshot;
+  },
+
+  addSmoke: function(piggy) {
+    var rad = 2;
+    var geometry = new THREE.Geometry();
+    for (var i = 0 ; i < 3000; i++) {
+      geometry.vertices.push(new THREE.Vector3(
+        Math.random() * rad - rad/2,
+        Math.random() * rad - rad/2,
+        Math.random() * rad - rad/2
+      ));
+    }
+    for (i = 0 ; i < 2000; i++) {
+      geometry.vertices.push(new THREE.Vector3(
+        Math.random() * rad/2 - rad/4,
+        Math.random() * rad/2 - rad/4,
+        Math.random() * rad/2 - rad/4
+      ));
+    }
+    var material = new THREE.ParticleBasicMaterial({
+      size: 0.01, 
+      color: 0xff8888, 
+      blending: THREE.AdditiveBlending,
+      transparent: true
+    });
+    var mesh = new THREE.ParticleSystem(geometry, material);
+    mesh.position.copy(piggy.threeMesh.position);
+    mesh.sortParticles = false;
+    this.world.threeScene.add(mesh);
+
+    setTimeout(function() {
+      this.world.threeScene.remove(mesh);
+    }.bind(this), 2500);
   },
 
   dragWorld: function(event) {
