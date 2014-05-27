@@ -20,9 +20,10 @@ var AngryBirds = {
   },
 
   Mode: {
-    SIGHT_SETTING: 0,
-    FLYING: 1,
-    SIDEVIEW: 2
+    TITLE: 0,
+    SIGHT_SETTING: 1,
+    FLYING: 2,
+    SIDEVIEW: 3
   }
 };
 
@@ -242,7 +243,7 @@ AngryBirds.Game = function(opts) {
   this.stages.forEach(function(stage) {stage.game = this}, this);
   this.currentStageNo = 0;
   this.setting = new AngryBirds.Setting(opts.density);
-  this.mode = AngryBirds.Mode.SIGHT_SETTING;
+  this.mode = AngryBirds.Mode.TITLE;
   this.world = null;
   this.skybox = null;
   this.slingshot = null;
@@ -480,8 +481,12 @@ AngryBirds.Game.prototype = {
   },
 
   keyPressListener: function(event) {
-    if (event.charCode === 13) { // enter
-      if (this.world.isStopped) {
+    if (event.charCode === 32) { // space
+      if (this.mode === AngryBirds.Mode.TITLE) {
+        document.getElementById('title').className = 'hide';
+        this.mode = AngryBirds.Mode.SIGHT_SETTING;
+      }
+      else if (this.world.isStopped) {
         window.location.reload();
       }
       else {
@@ -489,7 +494,7 @@ AngryBirds.Game.prototype = {
         this.ready();
       }
     }
-    else if (event.charCode === 32) { // space
+    else if (event.charCode === 13) { // enter
       if (this.mode === AngryBirds.Mode.FLYING) {
         this.mode = AngryBirds.Mode.SIDEVIEW;
         this.bird.threeMesh.material.opacity = 1;
@@ -527,6 +532,7 @@ AngryBirds.Game.prototype = {
     this.construct();
     this.setupEventListeners();
     this.ready();
+    this.mode = AngryBirds.Mode.TITLE;
     this.world.start(1/24, function() {
       if (this.mode === AngryBirds.Mode.FLYING) {
         this.slingshot.material.opacity = 0.5;
