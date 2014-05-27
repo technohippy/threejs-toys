@@ -511,6 +511,10 @@ AngryBirds.Game.prototype = {
     document.addEventListener('mousemove', this.mouseMoveListener.bind(this));
     document.addEventListener('mouseup', this.mouseUpListener.bind(this));
     document.addEventListener('keypress', this.keyPressListener.bind(this));
+    document.getElementById('start-button').addEventListener('click', function(event) {
+      document.getElementById('title').className = 'hide';
+      this.mode = AngryBirds.Mode.SIGHT_SETTING;
+    }.bind(this));
   },
 
   ready: function() {

@@ -22,6 +22,7 @@ body {
 #title h2 {
   font-size:3em;
   margin-bottom:5px;
+  cursor:pointer;
 }
 #title h3 {
   font-size:2em;
