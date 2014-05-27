@@ -23,7 +23,8 @@ var AngryBirds = {
     TITLE: 0,
     SIGHT_SETTING: 1,
     FLYING: 2,
-    SIDEVIEW: 3
+    LANDING: 3,
+    SIDEVIEW: 4
   }
 };
 
@@ -72,7 +73,6 @@ AngryBirds.Piggy.prototype.addDamageListener = function(listener) {
 AngryBirds.Piggy.prototype.addDieListener = function(listener) {
   this.dieListeners.push(listener);
 };
-
 
 AngryBirds.Stage = function() {
   this.game = null;
@@ -486,6 +486,9 @@ AngryBirds.Game.prototype = {
         document.getElementById('title').className = 'hide';
         this.mode = AngryBirds.Mode.SIGHT_SETTING;
       }
+      else if (this.mode === AngryBirds.Mode.FLYING) {
+        // ignore
+      }
       else if (this.world.isStopped) {
         window.location.reload();
       }
@@ -495,12 +498,13 @@ AngryBirds.Game.prototype = {
       }
     }
     else if (event.charCode === 13) { // enter
-      if (this.mode === AngryBirds.Mode.FLYING) {
+      if (this.mode === AngryBirds.Mode.FLYING
+          || this.mode === AngryBirds.Mode.LANDING) {
         this.mode = AngryBirds.Mode.SIDEVIEW;
         this.bird.threeMesh.material.opacity = 1;
       }
       else if (this.mode === AngryBirds.Mode.SIDEVIEW) {
-        this.mode = AngryBirds.Mode.FLYING;
+        this.mode = AngryBirds.Mode.LANDING;
         this.bird.threeMesh.material.opacity = 0.5;
       }
     }
@@ -514,6 +518,12 @@ AngryBirds.Game.prototype = {
     document.getElementById('start-button').addEventListener('click', function(event) {
       document.getElementById('title').className = 'hide';
       this.mode = AngryBirds.Mode.SIGHT_SETTING;
+    }.bind(this));
+
+    this.bird.addEventListener('collide', function(evt) {
+      if (this.mode === AngryBirds.Mode.FLYING) {
+        this.mode == AngryBirds.Mode.LANDING;
+      }
     }.bind(this));
   },
 
@@ -538,7 +548,8 @@ AngryBirds.Game.prototype = {
     this.ready();
     this.mode = AngryBirds.Mode.TITLE;
     this.world.start(1/24, function() {
-      if (this.mode === AngryBirds.Mode.FLYING) {
+      if (this.mode === AngryBirds.Mode.FLYING 
+          || this.mode === AngryBirds.Mode.LANDING) {
         this.slingshot.material.opacity = 0.5;
         this.world.threeCamera.position.copy(this.bird.threeMesh.position);
         this.world.threeCamera.lookAt(this.stages[0].piggies[0].threeMesh.position);

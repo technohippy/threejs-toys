@@ -20,9 +20,13 @@ body {
   margin-bottom:10px;
 }
 #title h2 {
+  color:white;
   font-size:3em;
   margin-bottom:5px;
   cursor:pointer;
+}
+#title h2:hover {
+  color:yellow;
 }
 #title h3 {
   font-size:2em;

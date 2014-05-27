@@ -412,11 +412,13 @@ C3.Ground.prototype.constructThreeGeometry = function() {
 //  return new THREE.BoxGeometry(1000, 1000, 0.1);
   var simplexNoise = new SimplexNoise();
   var planeGeometry = new THREE.PlaneGeometry(300, 300, 64, 64);
+//  var center = new THREE.Vector3(0, 0, 48);
   for (var i = 0; i < planeGeometry.vertices.length; i++) {
-    var vertex = planeGeometry.vertices[ i ];
+    var vertex = planeGeometry.vertices[i];
     //vertex.z = simplexNoise.noise(vertex.x / 20, vertex.y / 20);
-    //vertex.z = simplexNoise.noise(vertex.x / 40, vertex.y / 40);
-    vertex.z = -simplexNoise.noise(vertex.x / 40, vertex.y / 40);
+    vertex.z = simplexNoise.noise(vertex.x / 40, vertex.y / 40);
+//    var dist = center.distanceTo(vertex);
+//    vertex.z = dist / 100 + simplexNoise.noise(vertex.x / 40, vertex.y / 40);
   }
   planeGeometry.computeFaceNormals();
   planeGeometry.computeVertexNormals();
