@@ -76,6 +76,7 @@ AngryBirds.Piggy.prototype.addDieListener = function(listener) {
 
 AngryBirds.Stage = function() {
   this.game = null;
+  this.index = 0;
   this.piggies = [];
 };
 
@@ -128,6 +129,11 @@ AngryBirds.Stage.prototype = {
         elm.className = 'show';
         setTimeout(function() {elm.className = 'hide'}, 2000);
         this.game.addSmoke(piggy);
+
+        this.piggies.splice(this.piggies.indexOf(piggy), 1);
+        if (this.piggies.length == 0) {
+          this.game.clearStage(this);
+        }
       }.bind(this));
     }.bind(this));
   }
@@ -242,7 +248,10 @@ AngryBirds.Game = function(opts) {
   if (!opts.stages) throw 'stages is the mandatory option.';
   this.shotCount = 1;
   this.stages = opts.stages;
-  this.stages.forEach(function(stage) {stage.game = this}, this);
+  this.stages.forEach(function(stage, index) {
+    stage.game = this;
+    stage.index = index;
+  }, this);
   this.currentStageNo = 0;
   this.setting = new AngryBirds.Setting(opts.density);
   this.mode = AngryBirds.Mode.TITLE;
@@ -460,6 +469,18 @@ AngryBirds.Game.prototype = {
     this.mode = AngryBirds.Mode.FLYING;
     //this.bird.threeMesh.material.opacity = 1;
     //this.mode = AngryBirds.Mode.SIDEVIEW;
+  },
+
+  // TODO
+  clearStage: function(stage) {
+    var nextStageIndex = stage.index + 1;
+    alert('Stage' + nextStageIndex + ' Clear!!');
+    if (this.stages.length <= nextStageIndex) {
+      alert('Game Clear!!');
+      setTimeout(function() {
+        window.location.reload();
+      }, 3000);
+    }
   },
 
   mouseDownListener: function(event) {
