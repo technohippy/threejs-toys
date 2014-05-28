@@ -240,6 +240,7 @@ AngryBirds.Stage1.prototype.constructOn = function(world) {
 
 AngryBirds.Game = function(opts) {
   if (!opts.stages) throw 'stages is the mandatory option.';
+  this.shotCount = 1;
   this.stages = opts.stages;
   this.stages.forEach(function(stage) {stage.game = this}, this);
   this.currentStageNo = 0;
@@ -447,6 +448,20 @@ AngryBirds.Game.prototype = {
     return dist;
   },
 
+  shot: function(impulseScalar) {
+    this.shotCount += 1;
+    var impulseDir = new CANNON.Vec3(this.cameraDirection.x, this.cameraDirection.y, this.cameraDirection.z);
+    impulseDir.normalize();
+    var impulse = impulseDir.mult(impulseScalar);
+    this.bird.applyImpulse(impulse, this.bird.cannonBody.position);
+    this.world.isStopped = false;
+    this.slingshot.material.opacity = 1;
+    this.bird.threeMesh.material.opacity = 0.5;
+    this.mode = AngryBirds.Mode.FLYING;
+    //this.bird.threeMesh.material.opacity = 1;
+    //this.mode = AngryBirds.Mode.SIDEVIEW;
+  },
+
   mouseDownListener: function(event) {
     if (this.mode != AngryBirds.Mode.SIGHT_SETTING) return;
 
@@ -494,16 +509,7 @@ AngryBirds.Game.prototype = {
         this.ready();
       }
       else {
-        var impulseDir = new CANNON.Vec3(this.cameraDirection.x, this.cameraDirection.y, this.cameraDirection.z);
-        impulseDir.normalize();
-        var impulse = impulseDir.mult(f * dt);
-        this.bird.applyImpulse(impulse, this.bird.cannonBody.position);
-        this.world.isStopped = false;
-        this.slingshot.material.opacity = 1;
-        this.bird.threeMesh.material.opacity = 0.5;
-        this.mode = AngryBirds.Mode.FLYING;
-        //this.bird.threeMesh.material.opacity = 1;
-        //this.mode = AngryBirds.Mode.SIDEVIEW;
+        this.shot(f * dt);
       }
     }
     else if (this.isWorldDragging) {
