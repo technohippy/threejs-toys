@@ -387,25 +387,22 @@ AngryBirds.Game.prototype = {
   },
 
   addSmoke: function(piggy) {
-    var rad = 2;
+    var maxRad = 2;
     var geometry = new THREE.Geometry();
-    for (var i = 0 ; i < 3000; i++) {
-      geometry.vertices.push(new THREE.Vector3(
-        Math.random() * rad - rad/2,
-        Math.random() * rad - rad/2,
-        Math.random() * rad - rad/2
-      ));
-    }
-    for (i = 0 ; i < 2000; i++) {
-      geometry.vertices.push(new THREE.Vector3(
-        Math.random() * rad/2 - rad/4,
-        Math.random() * rad/2 - rad/4,
-        Math.random() * rad/2 - rad/4
-      ));
+    for (var i = 0 ; i < 5000; i++) {
+      var rad = Math.random() * maxRad;
+      var angleY = Math.random() * 2 * Math.PI;
+      var angleX = Math.random() * Math.PI;
+      var point = new THREE.Vector3(
+        rad * Math.sin(angleY) * Math.cos(angleX),
+        rad * Math.cos(angleY) * Math.cos(angleX),
+        rad * Math.sin(angleY) * Math.sin(angleX)
+      );
+      geometry.vertices.push(point);
     }
     var material = new THREE.ParticleBasicMaterial({
       size: 0.01, 
-      color: 0xff8888, 
+      color: 0x88ff88, 
       blending: THREE.AdditiveBlending,
       transparent: true
     });
