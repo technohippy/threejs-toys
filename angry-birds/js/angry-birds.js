@@ -474,13 +474,8 @@ AngryBirds.Game.prototype = {
   // TODO
   clearStage: function(stage) {
     var nextStageIndex = stage.index + 1;
-    alert('Stage' + nextStageIndex + ' Clear!!');
-    if (this.stages.length <= nextStageIndex) {
-      alert('Game Clear!!');
-      setTimeout(function() {
-        this.restart();
-      }.bind(this), 3000);
-    }
+    document.getElementById('stage-id').textContent = nextStageIndex;
+    document.getElementById('stage-clear').className = 'show';
   },
 
   // TODO
@@ -582,10 +577,32 @@ AngryBirds.Game.prototype = {
       document.getElementById('title').className = 'hide';
       this.mode = AngryBirds.Mode.SIGHT_SETTING;
     }.bind(this));
+    document.getElementById('stage-clear').addEventListener('click', function(event) {
+      var nextStageIndex = parseInt(document.getElementById('stage-id').textContent, 10);
+      document.getElementById('stage-clear').className = 'hide';
+      if (this.stages.length <= nextStageIndex) {
+        document.getElementById('game-clear').className = 'show';
+      }
+      else {
+        this.world.stop();
+        this.ready();
+      }
+    }.bind(this));
+    document.getElementById('game-clear').addEventListener('click', function(event) {
+      this.restart();
+    }.bind(this));
 
     this.bird.addEventListener('collide', function(evt) {
       if (this.mode === AngryBirds.Mode.FLYING) {
-        this.mode == AngryBirds.Mode.LANDING;
+        this.mode = AngryBirds.Mode.LANDING;
+        var currentShotCount = this.shotCount;
+        setTimeout(function() {
+          if (currentShotCount == this.shotCount
+              && this.mode === AngryBirds.Mode.LANDING) {
+            this.world.stop();
+            this.ready();
+          }
+        }.bind(this), 10000);
       }
     }.bind(this));
   },
