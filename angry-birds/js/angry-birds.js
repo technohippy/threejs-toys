@@ -24,7 +24,8 @@ var AngryBirds = {
     SIGHT_SETTING: 1,
     FLYING: 2,
     LANDING: 3,
-    SIDEVIEW: 4
+    SIDEVIEW: 4,
+    CLEAR_STAGE: 5
   }
 };
 
@@ -473,6 +474,7 @@ AngryBirds.Game.prototype = {
 
   // TODO
   clearStage: function(stage) {
+    this.mode = AngryBirds.Mode.CLEAR_STAGE;
     var nextStageIndex = stage.index + 1;
     document.getElementById('stage-id').textContent = nextStageIndex;
     document.getElementById('stage-clear').className = 'show';
@@ -544,7 +546,8 @@ AngryBirds.Game.prototype = {
         document.getElementById('title').className = 'hide';
         this.mode = AngryBirds.Mode.SIGHT_SETTING;
       }
-      else if (this.mode === AngryBirds.Mode.FLYING) {
+      else if (this.mode === AngryBirds.Mode.FLYING
+               || this.mode === AngryBirds.Mode.CLEAR_STAGE) {
         // ignore
       }
       else if (this.world.isStopped) {

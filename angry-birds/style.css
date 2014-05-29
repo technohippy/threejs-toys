@@ -24,13 +24,14 @@ body {
   font-size:3em;
   margin-bottom:5px;
   cursor:pointer;
+  color:yellow;
 }
 #title h2:hover {
-  color:yellow;
+  color:#ff9999;
 }
 #title h3 {
   font-size:2em;
-  margin:20px 0 0 250px;
+  margin:40px 0 0 280px;
 }
 #title dl {
   margin-top:10px;
@@ -86,7 +87,7 @@ body {
   text-align:center;
   color:white;
   font-size:8em;
-  margin-bottom:10px;
+  padding-top:20%;
 }
 #game-clear {
   position:absolute;
@@ -97,5 +98,5 @@ body {
   text-align:center;
   color:white;
   font-size:8em;
-  margin-bottom:10px;
+  padding-top:20%;
 }
