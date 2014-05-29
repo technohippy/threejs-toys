@@ -478,9 +478,14 @@ AngryBirds.Game.prototype = {
     if (this.stages.length <= nextStageIndex) {
       alert('Game Clear!!');
       setTimeout(function() {
-        window.location.reload();
-      }, 3000);
+        this.restart();
+      }.bind(this), 3000);
     }
+  },
+
+  // TODO
+  restart: function() {
+    window.location.reload();
   },
 
   mouseDownListener: function(event) {
@@ -548,7 +553,7 @@ AngryBirds.Game.prototype = {
         // ignore
       }
       else if (this.world.isStopped) {
-        window.location.reload();
+        this.restart();
       }
       else {
         this.world.stop();
@@ -609,8 +614,10 @@ AngryBirds.Game.prototype = {
       if (this.mode === AngryBirds.Mode.FLYING 
           || this.mode === AngryBirds.Mode.LANDING) {
         this.slingshot.material.opacity = 0.5;
-        this.world.threeCamera.position.copy(this.bird.threeMesh.position);
-        this.world.threeCamera.lookAt(this.stages[0].piggies[0].threeMesh.position);
+        if (this.stages[0].piggies.length != 0) {
+          this.world.threeCamera.position.copy(this.bird.threeMesh.position);
+          this.world.threeCamera.lookAt(this.stages[0].piggies[0].threeMesh.position);
+        }
       }
       else if (this.mode === AngryBirds.Mode.SIDEVIEW) {
         this.slingshot.material.opacity = 1;
