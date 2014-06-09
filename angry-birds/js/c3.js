@@ -213,15 +213,13 @@ C3.World.prototype = {
       this.isStopped = false;
     }
     else {
-      window.addEventListener('DOMContentLoaded', function() {
-        document.body.appendChild(this.domElement);
-        var _start = function() {
-          this.stepRender(msec);
-          requestAnimationFrame(_start.bind(this));
-          callback();
-        }.bind(this);
-        _start();
-      }.bind(this));
+      document.body.appendChild(this.domElement);
+      var _start = function() {
+        this.stepRender(msec);
+        requestAnimationFrame(_start.bind(this));
+        callback();
+      }.bind(this);
+      _start();
     }
   },
 

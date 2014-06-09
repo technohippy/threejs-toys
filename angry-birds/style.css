@@ -85,9 +85,10 @@ body {
   height:100%;
   background:rgba(0,0,0,0.5);
   text-align:center;
+  text-shadow:0 0 15px black;
   color:white;
   font-size:8em;
-  padding-top:20%;
+  padding-top:30%;
 }
 #game-clear {
   position:absolute;
@@ -96,9 +97,10 @@ body {
   height:100%;
   background:rgba(0,0,0,0.5);
   text-align:center;
+  text-shadow:0 0 15px black;
   color:white;
   font-size:8em;
-  padding-top:20%;
+  padding-top:30%;
 }
 #help {
   position:absolute;
