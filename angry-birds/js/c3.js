@@ -190,6 +190,17 @@ C3.World.prototype = {
     this.threeScene.add(ambient);
   },
 
+  removeAllBodies: function(opts) {
+    var without = (opts || {}).without || [];
+    this.bodies.forEach(function(body) {
+      if (without.indexOf(body) < 0) {
+        this.cannonWorld.remove(body.cannonBody);
+        this.threeScene.remove(body.threeMesh);
+      }
+    }.bind(this));
+    this.bodies = [];
+  },
+
   step: function(msec) {
     if (!this.cameraAdded) this.addCamera();
     this.cannonWorld.step(msec || 1.0/24.0);

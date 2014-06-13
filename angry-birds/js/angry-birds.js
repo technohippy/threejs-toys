@@ -79,6 +79,7 @@ AngryBirds.Stage = function() {
   this.game = null;
   this.index = 0;
   this.piggies = [];
+  this.bodies = [];
 };
 
 AngryBirds.Stage.prototype = {
@@ -91,6 +92,7 @@ AngryBirds.Stage.prototype = {
     }
     var box = new C3.Box(size.width, size.height, size.depth, opts);
     box.position.copy(position);
+    this.bodies.push(box);
     return box;
   },
 
@@ -106,6 +108,19 @@ AngryBirds.Stage.prototype = {
     // TODO: 太さを指定しなくていいようにしたり
     if (!opts.map && !opts.color) opts.map = AngryBirds.Texture.POST;
     return this.createBox(size, position, opts);
+  },
+
+  destructFromFrom: function(world) {
+    this.bodies.forEach(function(body) {
+      world.bodies.splice(world.bodies.indexOf(body), 1);
+      world.cannonWorld.remove(body.cannonBody);
+      world.threeScene.remove(body.threeMesh);
+    });
+    this.piggies.forEach(function(piggy) {
+      world.bodies.splice(world.bodies.indexOf(piggy), 1);
+      world.cannonWorld.remove(piggy.cannonBody);
+      world.threeScene.remove(piggy.threeMesh);
+    });
   },
 
   setupEventListeners: function() {
@@ -154,6 +169,7 @@ AngryBirds.Game = function(opts) {
   this.world = null;
   this.skybox = null;
   this.slingshot = null;
+  this.ground = null;
   this.bird = null;
   this.birdStartPosition = new THREE.Vector3(0, 2.5/*bar*/ + 2/*arm*/, 0);
   this.piggy = null;
@@ -181,9 +197,9 @@ AngryBirds.Game.prototype = {
     this.world.threeScene.add(this.skybox);
 
     // ground
-    var ground = new C3.Ground({map:AngryBirds.Texture.GRASS});
-    //var ground = new C3.Ground({color:0x00ff00});
-    this.world.add(ground);
+    this.ground = new C3.Ground({map:AngryBirds.Texture.GRASS});
+    //this.ground = new C3.Ground({color:0x00ff00});
+    this.world.add(this.ground);
 
     // slingshot
     this.slingshot = this.createSlingshotMesh();
@@ -263,7 +279,7 @@ AngryBirds.Game.prototype = {
   },
 
   constructStage: function(world) {
-    var stage = this.stages[this.currentStageNo];
+    var stage = this.getCurrentStage();
     stage.constructOn(world);
     stage.setupEventListeners();
   },
@@ -367,12 +383,25 @@ AngryBirds.Game.prototype = {
     //this.mode = AngryBirds.Mode.SIDEVIEW;
   },
 
+  getCurrentStage: function() {
+    return this.stages[this.currentStageNo];
+  },
+
   // TODO
   clearStage: function(stage) {
     this.mode = AngryBirds.Mode.CLEAR_STAGE;
     var nextStageIndex = stage.index + 1;
     document.getElementById('stage-id').textContent = nextStageIndex;
     document.getElementById('stage-clear').className = 'show';
+  },
+
+  moveNextStage: function() {
+    var currentStage = this.getCurrentStage();
+    currentStage.destructFromFrom(this.world);
+
+    this.currentStageNo++;
+    var nextStage = this.getCurrentStage();
+    nextStage.constructOn(this.world);
   },
 
   // TODO
@@ -483,6 +512,7 @@ AngryBirds.Game.prototype = {
       }
       else {
         this.world.stop();
+        this.moveNextStage();
         this.ready();
       }
     }.bind(this));
@@ -495,7 +525,7 @@ AngryBirds.Game.prototype = {
         this.mode = AngryBirds.Mode.LANDING;
         var currentShotCount = this.shotCount;
         setTimeout(function() {
-          if (currentShotCount == this.shotCount
+          if (currentShotCount === this.shotCount
               && this.mode === AngryBirds.Mode.LANDING) {
             this.world.stop();
             this.ready();
@@ -506,6 +536,7 @@ AngryBirds.Game.prototype = {
   },
 
   ready: function() {
+    this.shotCount = 0;
     this.mode = AngryBirds.Mode.SIGHT_SETTING;
     this.isBirdDragging = false;
     this.isWorldDragging = false;
@@ -529,9 +560,9 @@ AngryBirds.Game.prototype = {
       if (this.mode === AngryBirds.Mode.FLYING 
           || this.mode === AngryBirds.Mode.LANDING) {
         this.slingshot.material.opacity = 0.5;
-        if (this.stages[0].piggies.length != 0) {
+        if (this.getCurrentStage().piggies.length != 0) {
           this.world.threeCamera.position.copy(this.bird.threeMesh.position);
-          this.world.threeCamera.lookAt(this.stages[0].piggies[0].threeMesh.position);
+          this.world.threeCamera.lookAt(this.getCurrentStage().piggies[0].threeMesh.position);
         }
       }
       else if (this.mode === AngryBirds.Mode.SIDEVIEW) {
