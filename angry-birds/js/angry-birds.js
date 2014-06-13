@@ -176,7 +176,7 @@ AngryBirds.Game = function(opts) {
 
   this.isBirdDragging = false;
   this.isWorldDragging = false;
-  this.dragStartMousePosition;
+  this.dragStartMousePosition = null;
   this.projector = new THREE.Projector();
 };
 
@@ -212,7 +212,7 @@ AngryBirds.Game.prototype = {
     this.bird.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
     this.world.add(this.bird);
 
-    this.constructStage(this.world);
+    this.constructStage();
   },
   
   createLensFlare: function() {
@@ -278,9 +278,9 @@ AngryBirds.Game.prototype = {
     return bird;
   },
 
-  constructStage: function(world) {
+  constructStage: function() {
     var stage = this.getCurrentStage();
-    stage.constructOn(world);
+    stage.constructOn(this.world);
     stage.setupEventListeners();
   },
 
@@ -396,17 +396,21 @@ AngryBirds.Game.prototype = {
   },
 
   moveNextStage: function() {
-    var currentStage = this.getCurrentStage();
-    currentStage.destructFromFrom(this.world);
-
+    this.getCurrentStage().destructFromFrom(this.world);
     this.currentStageNo++;
-    var nextStage = this.getCurrentStage();
-    nextStage.constructOn(this.world);
+    this.constructStage();
   },
 
   // TODO
   restart: function() {
-    window.location.reload();
+//    window.location.reload();
+    document.getElementById('title').className = 'show';
+    document.getElementById('game-clear').className = 'hide';
+
+    this.getCurrentStage().destructFromFrom(this.world);
+    this.currentStageNo = 0;
+    this.constructStage();
+    this.start(true);
   },
 
   mouseDownListener: function(event) {
@@ -551,28 +555,32 @@ AngryBirds.Game.prototype = {
     this.slingshot.lookAt(new THREE.Vector3(0, 0, 1).add(this.slingshot.position));
   },
 
-  start: function() {
-    this.construct();
+  start: function(isRestart) {
+    if (!isRestart) {
+      this.construct();
+    }
     this.setupEventListeners();
     this.ready();
     this.mode = AngryBirds.Mode.TITLE;
-    this.world.start(1/24, function() {
-      if (this.mode === AngryBirds.Mode.FLYING 
-          || this.mode === AngryBirds.Mode.LANDING) {
-        this.slingshot.material.opacity = 0.5;
-        if (this.getCurrentStage().piggies.length != 0) {
-          this.world.threeCamera.position.copy(this.bird.threeMesh.position);
-          this.world.threeCamera.lookAt(this.getCurrentStage().piggies[0].threeMesh.position);
+    if (!isRestart) {
+      this.world.start(1/24, function() {
+        if (this.mode === AngryBirds.Mode.FLYING 
+            || this.mode === AngryBirds.Mode.LANDING) {
+          this.slingshot.material.opacity = 0.5;
+          if (this.getCurrentStage().piggies.length != 0) {
+            this.world.threeCamera.position.copy(this.bird.threeMesh.position);
+            this.world.threeCamera.lookAt(this.getCurrentStage().piggies[0].threeMesh.position);
+          }
         }
-      }
-      else if (this.mode === AngryBirds.Mode.SIDEVIEW) {
-        this.slingshot.material.opacity = 1;
-        //this.world.threeCamera.position.set(-25, 15, 15);
-        //this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 15));
-        this.world.threeCamera.position.set(-35, 15, 30);
-        this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 30));
-      }
-    }.bind(this));
+        else if (this.mode === AngryBirds.Mode.SIDEVIEW) {
+          this.slingshot.material.opacity = 1;
+          //this.world.threeCamera.position.set(-25, 15, 15);
+          //this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 15));
+          this.world.threeCamera.position.set(-35, 15, 30);
+          this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 30));
+        }
+      }.bind(this));
+    }
     this.world.stop();
   }
 };
