@@ -401,16 +401,17 @@ AngryBirds.Game.prototype = {
     this.constructStage();
   },
 
-  // TODO
   restart: function() {
-//    window.location.reload();
     document.getElementById('title').className = 'show';
     document.getElementById('game-clear').className = 'hide';
 
     this.getCurrentStage().destructFromFrom(this.world);
     this.currentStageNo = 0;
     this.constructStage();
-    this.start(true);
+
+    this.ready();
+    this.mode = AngryBirds.Mode.TITLE;
+    this.world.stop();
   },
 
   mouseDownListener: function(event) {
@@ -509,6 +510,7 @@ AngryBirds.Game.prototype = {
       this.mode = AngryBirds.Mode.SIGHT_SETTING;
     }.bind(this));
     document.getElementById('stage-clear').addEventListener('click', function(event) {
+      // TODO
       var nextStageIndex = parseInt(document.getElementById('stage-id').textContent, 10);
       document.getElementById('stage-clear').className = 'hide';
       if (this.stages.length <= nextStageIndex) {
@@ -556,31 +558,27 @@ AngryBirds.Game.prototype = {
   },
 
   start: function(isRestart) {
-    if (!isRestart) {
-      this.construct();
-    }
+    this.construct();
     this.setupEventListeners();
     this.ready();
     this.mode = AngryBirds.Mode.TITLE;
-    if (!isRestart) {
-      this.world.start(1/24, function() {
-        if (this.mode === AngryBirds.Mode.FLYING 
-            || this.mode === AngryBirds.Mode.LANDING) {
-          this.slingshot.material.opacity = 0.5;
-          if (this.getCurrentStage().piggies.length != 0) {
-            this.world.threeCamera.position.copy(this.bird.threeMesh.position);
-            this.world.threeCamera.lookAt(this.getCurrentStage().piggies[0].threeMesh.position);
-          }
+    this.world.start(1/24, function() {
+      if (this.mode === AngryBirds.Mode.FLYING 
+          || this.mode === AngryBirds.Mode.LANDING) {
+        this.slingshot.material.opacity = 0.5;
+        if (this.getCurrentStage().piggies.length != 0) {
+          this.world.threeCamera.position.copy(this.bird.threeMesh.position);
+          this.world.threeCamera.lookAt(this.getCurrentStage().piggies[0].threeMesh.position);
         }
-        else if (this.mode === AngryBirds.Mode.SIDEVIEW) {
-          this.slingshot.material.opacity = 1;
-          //this.world.threeCamera.position.set(-25, 15, 15);
-          //this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 15));
-          this.world.threeCamera.position.set(-35, 15, 30);
-          this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 30));
-        }
-      }.bind(this));
-    }
+      }
+      else if (this.mode === AngryBirds.Mode.SIDEVIEW) {
+        this.slingshot.material.opacity = 1;
+        //this.world.threeCamera.position.set(-25, 15, 15);
+        //this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 15));
+        this.world.threeCamera.position.set(-35, 15, 30);
+        this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 30));
+      }
+    }.bind(this));
     this.world.stop();
   }
 };
