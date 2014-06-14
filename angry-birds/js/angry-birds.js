@@ -568,6 +568,7 @@ AngryBirds.Game.prototype = {
         this.slingshot.material.opacity = 0.5;
         if (this.getCurrentStage().piggies.length != 0) {
           this.world.threeCamera.position.copy(this.bird.threeMesh.position);
+          // TODO: piggiesの重心とかにする？
           this.world.threeCamera.lookAt(this.getCurrentStage().piggies[0].threeMesh.position);
         }
       }
