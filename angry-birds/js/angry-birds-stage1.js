@@ -5,7 +5,6 @@ var AngryBirds = AngryBirds || {};
 
 AngryBirds.Stage1 = function(denPosition) {
   AngryBirds.Stage.call(this);
-  //this.denPosition =  denPosition || {x:0, z:24};
   this.denPosition =  denPosition || {x:0, z:48};
 };
 
@@ -17,7 +16,7 @@ AngryBirds.Stage1.prototype.constructOn = function(world) {
   world.add(this.createBoard(
     {width:10, height:0.2, depth:10}, 
     {x:this.denPosition.x, y:baseHeight, z:this.denPosition.z}, 
-    {fixed:true, color:0x660000, receiveShadow:true}
+    {fixed:true, color:AngryBirds.Color.FIXED, receiveShadow:true}
   ));
   baseHeight += 0.2/2;
 
@@ -98,7 +97,7 @@ AngryBirds.Stage1.prototype.constructOn = function(world) {
   world.add(this.createBox(
     {width:1, height:1, depth:1},
     {x:this.denPosition.x, y:baseHeight+0.2+1/2, z:this.denPosition.z},
-    {color:0x999999}
+    {color:AngryBirds.Color.STONE}
   ));
 
   baseHeight += 1;

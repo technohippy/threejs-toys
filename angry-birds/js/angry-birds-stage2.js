@@ -5,7 +5,6 @@ var AngryBirds = AngryBirds || {};
 
 AngryBirds.Stage2 = function(denPosition) {
   AngryBirds.Stage.call(this);
-  //this.denPosition =  denPosition || {x:0, z:24};
   this.denPosition =  denPosition || {x:0, z:48};
 };
 
@@ -29,9 +28,9 @@ AngryBirds.Stage2.prototype.createTable = function(world, x, z, height) {
 };
 AngryBirds.Stage2.prototype.constructOn = function(world) {
   this.createTable(world, this.denPosition.x - 0.2, this.denPosition.z - 10, 4);
-  this.createTable(world, this.denPosition.x, this.denPosition.z - 5, 4);
+  this.createTable(world, this.denPosition.x,       this.denPosition.z - 5, 4);
   this.createTable(world, this.denPosition.x + 0.2, this.denPosition.z, 4);
-  this.createTable(world, this.denPosition.x + 0.4, this.denPosition.z + 5, 6);
+  this.createTable(world, this.denPosition.x + 0.4, this.denPosition.z + 6, 6);
 };
 
 }).call(this, AngryBirds);

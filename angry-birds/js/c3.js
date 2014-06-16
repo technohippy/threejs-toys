@@ -83,7 +83,6 @@ C3.World = function(opts) {
   if (!this.cannonWorld) {
     this.cannonWorld = new CANNON.World();
     //this.cannonWorld.allowSleep = true;
-    //this.cannonWorld.gravity.set(0,0,-9.82);
     this.cannonWorld.gravity.set(0,-9.82,0);
     this.cannonWorld.broadphase = new CANNON.NaiveBroadphase();
   }

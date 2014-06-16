@@ -20,6 +20,11 @@ AngryBirds.Texture = {
   }
 };
 
+AngryBirds.Color = {
+  FIXED: 0x660000,
+  STONE: 0x999999
+};
+
 AngryBirds.Mode = {
   TITLE: 0,
   SIGHT_SETTING: 1,
