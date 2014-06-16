@@ -84,7 +84,7 @@ AngryBirds.Stage3.prototype.constructDen = function(world, dh, denDx, denDz) {
   world.add(this.createBox(
     {width:4.5, height:h5, depth:4.5},
     {x:this.denPosition.x+denDx, y:h1+h2+h3+h4+h5/2, z:this.denPosition.z+denDz},
-    {map:AngryBirds.Texture.ICE, shininess:200, bumpMap:AngryBirds.Texture.ICE}
+    {map:AngryBirds.Texture.ICE, shininess:200, bumpMap:AngryBirds.Texture.ICE, receiveShadow:true}
   ));
 
   var h6 = 0.7;
@@ -100,8 +100,8 @@ AngryBirds.Stage3.prototype.constructDen = function(world, dh, denDx, denDz) {
 };
 
 AngryBirds.Stage3.prototype.constructOn = function(world) {
-  this.constructDen(world, 0, -1, -2);
-  this.constructDen(world, 2, 1, 8);
+  this.constructDen(world, 0, -1, -5);
+  this.constructDen(world, 2, 1, 5);
 };
 
 }).call(this, AngryBirds);
