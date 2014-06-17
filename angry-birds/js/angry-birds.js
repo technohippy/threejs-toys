@@ -4,7 +4,7 @@ var AngryBirds = AngryBirds || {};
 "use strict";
 
 AngryBirds.Texture = {
-  BIRD: THREE.ImageUtils.loadTexture('image/angry_birds.jpg'),
+  BIRD: THREE.ImageUtils.loadTexture('image/bird.jpg'),
   PIGGY: THREE.ImageUtils.loadTexture('image/piggy.jpg'),
   BOARD: THREE.ImageUtils.loadTexture('image/board.jpg'),
   POST: THREE.ImageUtils.loadTexture('image/post.jpg'),
@@ -13,10 +13,10 @@ AngryBirds.Texture = {
   ROCK: THREE.ImageUtils.loadTexture('image/RockSmooth0076_5_thumblarge.jpg'),
   get GRASS() {
     if (!this._GRASS) {
-      this._GRASS = THREE.ImageUtils.loadTexture('image/grass.jpg');
+      this._GRASS = THREE.ImageUtils.loadTexture('image/grass_grass_0100_02_preview.jpg');
       this._GRASS.wrapS = THREE.RepeatWrapping;
       this._GRASS.wrapT = THREE.RepeatWrapping;
-      this._GRASS.repeat.set(400, 400);
+      this._GRASS.repeat.set(100, 100);
     }
     return this._GRASS;
   }
@@ -410,6 +410,8 @@ AngryBirds.Game.prototype = {
   },
 
   restart: function() {
+    window.location.reload();
+/*
     document.getElementById('title').className = 'show';
     document.getElementById('game-clear').className = 'hide';
 
@@ -420,6 +422,7 @@ AngryBirds.Game.prototype = {
     this.ready();
     this.mode = AngryBirds.Mode.TITLE;
     this.world.stop();
+*/
   },
 
   mouseDownListener: function(event) {
