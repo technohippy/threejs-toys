@@ -14,9 +14,9 @@ AngryBirds.Stage1.prototype.constructOn = function(world) {
   var dx, dz;
   var baseHeight = 1;
   world.add(this.createBoard(
-    {width:10, height:0.2, depth:10}, 
-    {x:this.denPosition.x, y:baseHeight, z:this.denPosition.z}, 
-    {fixed:true, color:AngryBirds.Color.FIXED, receiveShadow:true}
+    {width:10, height:2.2, depth:10}, 
+    {x:this.denPosition.x, y:0, z:this.denPosition.z}, 
+    {fixed:true, map:AngryBirds.Texture.CLOD, bumpMap:AngryBirds.Texture.CLOD}
   ));
   baseHeight += 0.2/2;
 
@@ -59,8 +59,7 @@ AngryBirds.Stage1.prototype.constructOn = function(world) {
       world.add(this.createPost(
         {width:0.6, height:4, depth:0.6},
         {x:this.denPosition.x-dx, y:baseHeight+4/2+0.2, z:this.denPosition.z-dz},
-        //{color:0x00ffff, shininess:200}
-        {map:AngryBirds.Texture.ICE, shininess:200, bumpMap:AngryBirds.Texture.ICE}
+        {map:AngryBirds.Texture.ICE, shininess:200, opacity:0.8, transparent:true}
       ));
     }
   }
@@ -97,7 +96,7 @@ AngryBirds.Stage1.prototype.constructOn = function(world) {
   world.add(this.createBox(
     {width:1, height:1, depth:1},
     {x:this.denPosition.x, y:baseHeight+0.2+1/2, z:this.denPosition.z},
-    {color:AngryBirds.Color.STONE}
+    {map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
   ));
 
   baseHeight += 1;

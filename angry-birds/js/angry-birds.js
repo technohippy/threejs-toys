@@ -9,6 +9,8 @@ AngryBirds.Texture = {
   BOARD: THREE.ImageUtils.loadTexture('image/board.jpg'),
   POST: THREE.ImageUtils.loadTexture('image/post.jpg'),
   ICE: THREE.ImageUtils.loadTexture('image/ice.jpg'),
+  CLOD: THREE.ImageUtils.loadTexture('image/brick_closeup_5132569.JPG'),
+  ROCK: THREE.ImageUtils.loadTexture('image/RockSmooth0076_5_thumblarge.jpg'),
   get GRASS() {
     if (!this._GRASS) {
       this._GRASS = THREE.ImageUtils.loadTexture('image/grass.jpg');
@@ -92,6 +94,7 @@ AngryBirds.Stage.prototype = {
 
   createBox: function(size, position, opts) {
     opts = opts || {};
+    opts.receiveShadow = true;
     if (!opts.mass && !opts.fixed) {
       opts.mass = size.width * size.height * size.depth * this.game.setting.density;
     }

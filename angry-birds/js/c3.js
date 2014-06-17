@@ -250,6 +250,8 @@ C3.Body = function(opts) {
   if (opts['ambient']) this.threeOpts['ambient'] = opts['ambient'];
   if (opts['specular']) this.threeOpts['specular'] = opts['specular'];
   if (opts['shininess']) this.threeOpts['shininess'] = opts['shininess'];
+  if (opts['transparent']) this.threeOpts['transparent'] = opts['transparent'];
+  if (opts['opacity']) this.threeOpts['opacity'] = opts['opacity'] || 1;
   if (opts['map']) this.threeOpts['map'] = opts['map'];
   if (opts['bumpMap']) {
     this.threeOpts['bumpMap'] = opts['bumpMap'];
@@ -287,7 +289,9 @@ C3.Body.prototype = {
     if (!material) {
       var materialOpts = {
         color:this.threeOpts['color'],
-        ambient:this.threeOpts['ambient']
+        ambient:this.threeOpts['ambient'],
+        transparent:this.threeOpts['transparent'],
+        opacity:this.threeOpts['opacity'] || 1
       };
       if (this.threeOpts['map']) materialOpts['map'] = this.threeOpts['map'];
       if (this.threeOpts['bumpMap']) {

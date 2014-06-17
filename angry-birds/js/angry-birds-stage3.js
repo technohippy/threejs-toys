@@ -18,48 +18,48 @@ AngryBirds.Stage3.prototype.constructDen = function(world, dh, denDx, denDz) {
   world.add(this.createBox(
     {width:5, height:h1, depth:5},
     {x:this.denPosition.x+denDx, y:h1/2, z:this.denPosition.z+denDz},
-    {fixed:true, color:AngryBirds.Color.FIXED, receiveShadow:true}
+    {fixed:true, map:AngryBirds.Texture.CLOD, bumpMap:AngryBirds.Texture.CLOD}
   ));
 
   var h2 = 1;
   world.add(this.createBox(
     {width:2, height:h2, depth:0.3},
     {x:this.denPosition.x+denDx-1-0.05, y:h1+h2/2, z:this.denPosition.z+denDz-2},
-    {color:AngryBirds.Color.STONE}
+    {map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
   ));
   world.add(this.createBox(
     {width:2, height:1, depth:0.3},
     {x:this.denPosition.x+denDx+1+0.05, y:h1+h2/2, z:this.denPosition.z+denDz-2},
-    {color:AngryBirds.Color.STONE}
+    {map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
   ));
 
   world.add(this.createBox(
     {width:2, height:1, depth:0.3},
     {x:this.denPosition.x+denDx-1-0.05, y:h1+h2/2, z:this.denPosition.z+denDz},
-    {color:AngryBirds.Color.STONE}
+    {map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
   ));
   world.add(this.createBox(
     {width:2, height:1, depth:0.3},
     {x:this.denPosition.x+denDx+1+0.05, y:h1+h2/2, z:this.denPosition.z+denDz},
-    {color:AngryBirds.Color.STONE}
+    {map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
   ));
 
   world.add(this.createBox(
     {width:2, height:1, depth:0.3},
     {x:this.denPosition.x+denDx-1-0.05, y:h1+h2/2, z:this.denPosition.z+denDz+2},
-    {color:AngryBirds.Color.STONE}
+    {map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
   ));
   world.add(this.createBox(
     {width:2, height:1, depth:0.3},
     {x:this.denPosition.x+denDx+1+0.05, y:h1+h2/2, z:this.denPosition.z+denDz+2},
-    {color:AngryBirds.Color.STONE}
+    {map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
   ));
 
   var h3 = 0.2;
   world.add(this.createBox(
     {width:4.5, height:h3, depth:4.5},
     {x:this.denPosition.x+denDx, y:h1+h2+h3/2, z:this.denPosition.z+denDz},
-    {color:AngryBirds.Color.STONE, receiveShadow:true}
+    {map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
   ));
 
   var piggy = new AngryBirds.Piggy(0.6, {mass:0.5, angularDamping:0.8, ambient:0x999999});
@@ -75,7 +75,7 @@ AngryBirds.Stage3.prototype.constructDen = function(world, dh, denDx, denDz) {
       world.add(this.createPost(
         {width:w4, height:h4, depth:w4}, 
         {x:this.denPosition.x+denDx+dx, y:h1+h2+h3+h4/2, z:this.denPosition.z+denDz+dz},
-        {map:AngryBirds.Texture.ICE, shininess:200, bumpMap:AngryBirds.Texture.ICE}
+        {map:AngryBirds.Texture.ICE, shininess:200, opacity:0.8, transparent:true}
       ));
     }
   }
@@ -84,7 +84,7 @@ AngryBirds.Stage3.prototype.constructDen = function(world, dh, denDx, denDz) {
   world.add(this.createBox(
     {width:4.5, height:h5, depth:4.5},
     {x:this.denPosition.x+denDx, y:h1+h2+h3+h4+h5/2, z:this.denPosition.z+denDz},
-    {map:AngryBirds.Texture.ICE, shininess:200, bumpMap:AngryBirds.Texture.ICE, receiveShadow:true}
+    {map:AngryBirds.Texture.ICE, shininess:200, opacity:0.8, transparent:true}
   ));
 
   var h6 = 0.7;
