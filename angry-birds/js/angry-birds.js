@@ -5,7 +5,8 @@ var AngryBirds = AngryBirds || {};
 
 AngryBirds.Texture = {
   BIRD: THREE.ImageUtils.loadTexture('image/bird.jpg'),
-  PIGGY: THREE.ImageUtils.loadTexture('image/piggy.jpg'),
+  //PIGGY: THREE.ImageUtils.loadTexture('image/piggy.jpg'),
+  PIGGY: THREE.ImageUtils.loadTexture('image/pig.jpg'),
   BOARD: THREE.ImageUtils.loadTexture('image/board.jpg'),
   POST: THREE.ImageUtils.loadTexture('image/post.jpg'),
   ICE: THREE.ImageUtils.loadTexture('image/ice.jpg'),
