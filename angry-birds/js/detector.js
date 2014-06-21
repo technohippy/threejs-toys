@@ -5,14 +5,34 @@ navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia 
                          navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
 var Detector = function(videoOrId, canvasOrId) {
-  if (videoOrId instanceof HTMLElement) {
+  this.videoCreated = false;
+  if (videoOrId === undefined) {
+    this.videoCreated = true;
+    this.video = document.createElement('video');
+    this.video.width = Detector.DEFAULT_WIDTH;
+    this.video.height = Detector.DEFAULT_HEIGHT;
+    this.video.style.position = 'absolute';
+    this.video.style.top = -Detector.DEFAULT_HEIGHT;
+    document.body.appendChild(this.video);
+  }
+  else if (videoOrId instanceof HTMLElement) {
     this.video = videoOrId;
   }
   else {
     this.video = document.getElementById(videoOrId);
   }
 
-  if (canvasOrId instanceof HTMLElement) {
+  this.canvasCreated = false;
+  if (canvasOrId === undefined) {
+    this.canvasCreated = true;
+    this.canvas = document.createElement('canvas');
+    this.canvas.width = Detector.DEFAULT_WIDTH;
+    this.canvas.height = Detector.DEFAULT_HEIGHT;
+    this.canvas.style.position = 'absolute';
+    this.canvas.style.top = -Detector.DEFAULT_HEIGHT;
+    document.body.appendChild(this.canvas);
+  }
+  else if (canvasOrId instanceof HTMLElement) {
     this.canvas = canvasOrId;
   }
   else {
@@ -24,10 +44,11 @@ var Detector = function(videoOrId, canvasOrId) {
   this.detectHandlers = [];
   this.errorHandlers = [];
   this.isDetecting = true;
+  this.isDebug = false;
 };
 
 Detector.DEFAULT_WIDTH = 400;
-Detector.DEFAULT_HEIGHT = 400;
+Detector.DEFAULT_HEIGHT = 300;
 
 Detector.prototype.addDetectHandler = function(handler) {
   this.detectHandlers.push(handler);
@@ -63,6 +84,16 @@ Detector.prototype.startWorker = function() {
 };
 
 Detector.prototype.start = function() {
+  if (this.isDebug) {
+    if (this.videoCreated) {
+      this.video.style.position = 'static';
+      this.video.style.top = undefined;
+    }
+    if (this.canvasCreated) {
+      this.canvas.style.position = 'static';
+      this.canvas.style.top = undefined;
+    }
+  }
   this.startCamera();
   this.startWorker();
 };

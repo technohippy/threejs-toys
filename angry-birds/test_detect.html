@@ -1,0 +1,34 @@
+<html>
+<head>
+  <script src="js/detector.js"></script>
+</head>
+<body>
+  <script>
+  var detector = new Detector();
+  detector.addDetectHandler(function(data, gc) {
+    var redPoints = data.redPoints;
+    var greenPoints = data.greenPoints;
+
+    gc.fillStyle = "#ffffff";
+    gc.beginPath();
+    gc.arc(redPoints.center.x, redPoints.center.y, redPoints.size/5, 0, 2 * Math.PI);
+    gc.fill();
+
+    gc.fillStyle = "#000000";
+    redPoints.points.forEach(function(p) {
+      gc.beginPath();
+      gc.arc(p.x, p.y, 2, 0, 2*Math.PI);
+      gc.fill();
+    });
+  });
+  detector.addErrorHandler(function(err) {
+    console.log("The following error occured: " + err);
+  });
+  detector.isDebug = true;
+  detector.start();
+  </script>
+
+  <br/>
+  <button onclick="detector.detect();" style="width:100px; height:100px;">detect</button>
+</body>
+</html>
