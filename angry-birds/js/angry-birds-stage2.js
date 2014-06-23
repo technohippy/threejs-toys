@@ -22,7 +22,8 @@ AngryBirds.Stage2.prototype.createTable = function(world, x, z, height) {
   ));
 
   var piggy = new AngryBirds.Piggy(0.6, {mass:0.5, angularDamping:0.8, ambient:0x999999});
-  piggy.position.set(x, height + 0.4/2 + 0.6/2, z);
+  //piggy.position.set(x, height + 0.4/2 + 0.6/2, z);
+  piggy.position.set(x, height + 0.4/2 + 0.6, z);
   world.add(piggy);
   this.piggies.push(piggy);
 };

@@ -17,11 +17,11 @@ body {
 }
 #title h1 {
   font-size:8em;
-  margin-bottom:10px;
 }
 #title h2 {
   color:white;
   font-size:3em;
+  margin-top:5px;
   margin-bottom:5px;
   cursor:pointer;
   color:yellow;
@@ -60,6 +60,62 @@ body {
 }
 #title dl dt:first-child + dd {
   border:none;
+}
+header {
+  margin:0;
+  margin-top:20px;
+  position:absolute;
+  width:100px;
+  top:0;
+  left:0;
+  height:100%;
+}
+header button {
+  border:none;
+  background:rgba(255,255,255,0.2);
+  width:75px;
+}
+header button img {
+  width:20px;
+  vertical-align:middle;
+}
+#scores {
+  margin:0;
+  padding:20px;
+  position:absolute;
+  top:0;
+  right:0;
+  font-weight:bold;
+  text-shadow:0 0 2px #ffffff;
+}
+#scores dt {
+  float:left;
+  clear:left;
+  width:80px;
+}
+#scores dd {
+  margin-left:90px;
+}
+menu[type="toolbar"] {
+  margin:0;
+  margin-bottom:20px;
+  padding:0;
+  position:absolute;
+  width:100px;
+  bottom:0;
+  left:0;
+}
+menu[type="toolbar"] button {
+  border:none;
+  background:rgba(255,255,255,0.2);
+  width:100px;
+}
+menu[type="toolbar"] button img {
+  width:20px;
+  vertical-align:middle;
+}
+#next-shot-button {
+  background:rgba(255,255,255,0.5);
 }
 #hit {
   position:absolute;
@@ -101,19 +157,4 @@ body {
   color:white;
   font-size:8em;
   padding-top:20%;
-}
-#help {
-  position:absolute;
-  left:20px;
-  bottom:20px;
-  width:40px;
-  height:40px;
-  border-radius:20px;
-  border:1px solid black;
-  box-shadow:5px 5px 5px 5px rgba(0,0,0,0.4);
-  background-color:black;
-  font-size:2em;
-  text-decoration:none;
-  text-align:center;
-  color:white;
 }

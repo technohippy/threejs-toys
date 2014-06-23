@@ -1,5 +1,7 @@
 "use strict";
 
+var centers = [];
+
 addEventListener('message', function(event) {
   var imageData = event.data;
   var width = imageData.width;
@@ -8,8 +10,9 @@ addEventListener('message', function(event) {
   var redPoints = [];
   var greenPoints = [];
 
-  for (var x = 0; x < width; x+=10) {
-    for (var y = 0; y < height; y+=10) {
+  var step = 5;
+  for (var x = 0; x < width; x+=step) {
+    for (var y = 0; y < height; y+=step) {
       var base = x * 4 + y * width * 4;
       var r = data[base];
       var g = data[base+1];
@@ -23,10 +26,18 @@ addEventListener('message', function(event) {
       }
     }
   }
+
+  var center = getCenter(redPoints);
+  while (10 <= centers.length) {
+    centers.shift();
+  }
+  centers.push(center);
+  var centerAverage = getCenterAverage(centers);
+  
   postMessage({
-    redPoints:{points:redPoints, center:getCenter(redPoints), size:redPoints.length},
+    redPoints:{points:redPoints, center:center, centerAverage:centerAverage, size:redPoints.length},
     greenPoints:{size:greenPoints.length},
-    isShot:greenPoints.length > redPoints.length
+    isShot:25 < greenPoints.length && greenPoints.length > redPoints.length
   });
 });
 
@@ -65,4 +76,15 @@ function getCenter(points) {
 
   // TODO: あとで標準偏差の大きいものと小さいものを外す
   return meanValue;
+}
+
+function getCenterAverage(centers) {
+  var ave = {x:0, y:0};
+  centers.forEach(function(center) {
+    ave.x += center.x;
+    ave.y += center.y;
+  });
+  ave.x /= centers.length;
+  ave.y /= centers.length;
+  return ave;
 }
