@@ -171,7 +171,8 @@ AngryBirds.Stage.prototype = {
 
 AngryBirds.Game = function(opts) {
   if (!opts.stages) throw 'stages is the mandatory option.';
-  this.shotCount = 1;
+  this.setHiScore(parseInt(localStorage.getItem('hiscore'), 10) || 0);
+  this.shotCount = 0;
   this.stages = opts.stages;
   this.stages.forEach(function(stage, index) {
     stage.game = this;
@@ -455,12 +456,27 @@ AngryBirds.Game.prototype = {
 
   shot: function(impulseScalar) {
     this.shotCount += 1;
+    $('score-value').textContent = this.shotCount; // TODO: この処理の場所を変えたい...
+    if (1 < this.shotCount) $('score-unit').textContent = 'shots';
     var impulseDir = new CANNON.Vec3(this.cameraDirection.x, this.cameraDirection.y, this.cameraDirection.z);
     impulseDir.normalize();
     var impulse = impulseDir.mult(impulseScalar);
     this.bird.applyImpulse(impulse, this.bird.cannonBody.position);
     this.world.isStopped = false;
     this.setGameMode(AngryBirds.GameMode.FLYING);
+  },
+
+  isHiScore: function(score) {
+    return this.hiScore === 0 || score < this.hiScore;
+  },
+
+  setHiScore: function(score) {
+    this.hiScore = score;
+    $('hi-score-value').textContent = this.hiScore;
+    if (1 < this.hiScore) {
+      $('hi-score-unit').textContent = 'shots';
+    }
+    localStorage.setItem('hiscore', this.hiScore);
   },
 
   getCurrentStage: function() {
@@ -472,6 +488,11 @@ AngryBirds.Game.prototype = {
     this.clearNextStageTimer();
     this.setGameMode(AngryBirds.GameMode.CLEAR_STAGE);
     var nextStageIndex = stage.index + 1;
+    if (this.stages.length <= nextStageIndex) {
+      if (this.isHiScore(this.shotCount)) {
+        this.setHiScore(this.shotCount);
+      }
+    }
     document.getElementById('stage-id').textContent = nextStageIndex;
     document.getElementById('stage-clear').className = 'show';
   },
@@ -669,7 +690,6 @@ AngryBirds.Game.prototype = {
 
   ready: function() {
     this.clearNextStageTimer();
-    this.shotCount = 0;
     this.setGameMode(AngryBirds.GameMode.SIGHT_SETTING);
     this.setViewMode(AngryBirds.ViewMode.BIRDVIEW);
     this.isBirdDragging = false;

@@ -33,34 +33,6 @@ body {
   font-size:2em;
   margin:40px 0 0 280px;
 }
-#title dl {
-  margin-top:10px;
-  position:absolute;
-  left:50%;
-  margin-left:-100px;
-  background: rgba(0,0,0,0.3);
-  border-radius:10px;
-  box-shadow:0px 0px 5px 1px #000;
-  width:500px;
-}
-#title dl dt {
-  float:left;
-  clear: left;
-  width:200px;
-  padding:5px;
-  border-top:1px solid #666;
-}
-#title dl dd {
-  margin-left: 210px;  
-  padding:5px;
-  border-top:1px solid #666;
-}
-#title dl dt:first-child {
-  border:none;
-}
-#title dl dt:first-child + dd {
-  border:none;
-}
 header {
   margin:0;
   margin-top:20px;
@@ -95,6 +67,7 @@ header button img {
 }
 #scores dd {
   margin-left:90px;
+text-align:right;
 }
 menu[type="toolbar"] {
   margin:0;
@@ -115,7 +88,9 @@ menu[type="toolbar"] button img {
   vertical-align:middle;
 }
 #next-shot-button {
+/*
   background:rgba(255,255,255,0.5);
+*/
 }
 #hit {
   position:absolute;
