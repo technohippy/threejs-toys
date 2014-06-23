@@ -67,7 +67,7 @@ header button img {
 }
 #scores dd {
   margin-left:90px;
-text-align:right;
+  text-align:right;
 }
 menu[type="toolbar"] {
   margin:0;
