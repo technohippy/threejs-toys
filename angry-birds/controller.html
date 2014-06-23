@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <script>
+      var canvas;
+      var context;
+      var color = 'red';
+
+      function drawCircle() {
+        context.beginPath();
+        context.arc(200, 200, 200, 0, 2 * Math.PI, false);
+        context.fillStyle = color;
+        context.fill();
+      }
+
+      document.addEventListener('DOMContentLoaded', function(event) {
+        document.body.addEventListener('touchend', function(event) {
+          color = color == 'red' ? 'green' : 'red';
+          drawCircle();
+        });
+        canvas = document.getElementsByTagName('canvas')[0];
+        context = canvas.getContext('2d');
+        drawCircle();
+      });
+    </script>
+  </head>
+  <body>
+    <canvas width="400" height="400" style="margin:auto;"></canvas>
+  </body>
+</html>
