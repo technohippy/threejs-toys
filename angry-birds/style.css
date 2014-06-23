@@ -134,6 +134,22 @@ menu[type="toolbar"] button img {
   color:black;
   z-index:999;
 }
+#help {
+  position:absolute;
+  z-index:10;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.5);
+}
+#help img {
+  top:50vh;
+  left:50vw;
+  margin-left:-367px;
+  margin-top:-247px;
+  width:735px;
+  height:494px;
+  position:absolute;
+}
 #stage-clear {
   position:absolute;
   z-index:10;

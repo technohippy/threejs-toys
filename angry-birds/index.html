@@ -2,6 +2,8 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
+    <title>Enraged Fowls</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/png">
     <link rel="stylesheet" href="style.css" type="text/css">
     <link href='http://fonts.googleapis.com/css?family=Chewy' rel='stylesheet' type='text/css'>
   </head>
@@ -9,7 +11,10 @@
     <div id="title">
       <h1>Enraged Fowls</h1>
       <h2 id="start-button">Normal Mode</h2>
+      <!--
       <h2 id="one-tap-button">One Tap Mode</h2>
+      -->
+      <h2 id="help-menu-button">Help</h2>
     </div>
     <header class="hide">
       <button id="restart-game-button">
@@ -20,7 +25,7 @@
         <img src="image/icon/retry.png" />
         Retry 
       </button>
-      <button id="help">
+      <button id="help-button">
         <img src="image/icon/help.png" />
         Help
       </button>
@@ -46,6 +51,7 @@
       </button>
     </menu>
     <div id="hit" class="hide"></div>
+    <div id="help" class="hide"><img src="image/manual.png"></div>
     <div id="stage-clear" class="hide">Stage #<span id="stage-id"></span> Clear!</div>
     <div id="game-clear" class="hide">Game Clear!</div>
     <script src="./lib/perlin-noise-simplex.js"></script>

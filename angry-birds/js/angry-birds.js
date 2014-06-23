@@ -369,6 +369,10 @@ AngryBirds.Game.prototype = {
     }
   },
 
+  showHelp: function() {
+    $('help').className = 'show';
+  },
+
   setViewMode: function(viewMode) {
     this.viewMode = viewMode;
     var elm = $('viewpoint-button-label');
@@ -593,6 +597,9 @@ AngryBirds.Game.prototype = {
       $('title').className = 'hide';
       this.setGameMode(AngryBirds.GameMode.SIGHT_SETTING);
     }.bind(this));
+    $('help-menu-button').addEventListener('click', function(event) {
+      this.showHelp();
+    }.bind(this));
     $('viewpoint-button').addEventListener('click', function(event) {
       $('viewpoint-button').blur();
       if (this.viewMode === AngryBirds.ViewMode.BIRDVIEW) {
@@ -609,11 +616,18 @@ AngryBirds.Game.prototype = {
     $('restart-game-button').addEventListener('click', function(event) {
       window.location.reload();
     }.bind(this));
+    $('help-button').addEventListener('click', function(event) {
+      $('help-button').blur();
+      this.showHelp();
+    }.bind(this));
     $('next-shot-button').addEventListener('click', function(event) {
       $('next-shot-button').blur();
       this.world.stop();
       this.ready();
     }.bind(this));
+    $('help').addEventListener('click', function(event) {
+      $('help').className = 'hide';
+    });
     $('stage-clear').addEventListener('click', function(event) {
       // TODO
       var nextStageIndex = parseInt($('stage-id').textContent, 10);
