@@ -9,6 +9,7 @@ addEventListener('message', function(event) {
   var data = imageData.data;
   var redPoints = [];
   var greenPoints = [];
+  var bluePoints = [];
 
   var step = 5;
   for (var x = 0; x < width; x+=step) {
@@ -21,8 +22,11 @@ addEventListener('message', function(event) {
       if (isRed(r, g, b, a)) {
         redPoints.push({x:x, y:y});
       }
-      if (isGreen(r, g, b, a)) {
+      else if (isGreen(r, g, b, a)) {
         greenPoints.push({x:x, y:y});
+      }
+      else if (isBlue(r, g, b, a)) {
+        bluePoints.push({x:x, y:y});
       }
     }
   }
@@ -36,8 +40,9 @@ addEventListener('message', function(event) {
   
   postMessage({
     redPoints:{points:redPoints, center:center, centerAverage:centerAverage, size:redPoints.length},
-    greenPoints:{size:greenPoints.length},
-    isShot:25 < greenPoints.length && greenPoints.length > redPoints.length
+    greenPoints:{points:greenPoints, size:greenPoints.length},
+    bluePoints:{points:bluePoints, size:bluePoints.length},
+    isShot:25 < bluePoints.length && bluePoints.length > redPoints.length
   });
 });
 
@@ -47,6 +52,10 @@ function isRed(r, b, g, a) {
 
 function isGreen(r, g, b, a) {
   return 250 < a && r < g/2.0 && 100 < g && b < g/2.0;
+}
+
+function isBlue(r, g, b, a) {
+  return 250 < a && r < b/2.0 && g < b/2.0 && 100 < b;
 }
 
 function getCenter(points) {
