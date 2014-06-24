@@ -723,8 +723,16 @@ AngryBirds.Game.prototype = {
     this.setupEventListeners();
     this.ready();
     this.setGameMode(AngryBirds.GameMode.TITLE);
+    var step = 1;
     this.world.start(1/24, function() {
-      if (this.viewMode === AngryBirds.ViewMode.BIRDVIEW) {
+      if (this.gameMode === AngryBirds.GameMode.TITLE) {
+        step += 1;
+        var angle = step * 180 / Math.PI / 5000;
+        var radius = 12 + 2 * Math.sin(angle / 3);
+        this.world.threeCamera.position.set(0 + radius * Math.cos(angle), 7 + 3 * Math.cos(angle * 2), 43 + radius * Math.sin(angle));
+        this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 48));
+      }
+      else if (this.viewMode === AngryBirds.ViewMode.BIRDVIEW) {
         this.bird.threeMesh.material.opacity = 0.5;
         if (this.gameMode === AngryBirds.GameMode.SIGHT_SETTING) {
           this.slingshot.material.opacity = 0.5;
