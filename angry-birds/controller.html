@@ -9,9 +9,12 @@
       }
     </style>
     <script>
+      var AIM_COLOR = '#ff0000';
+      var SHOT_COLOR = '#00ff00';
       var canvas;
       var context;
       var color = '#ff0000';
+      var timer;
 
       function drawCircle() {
         context.beginPath();
@@ -22,9 +25,19 @@
 
       document.addEventListener('DOMContentLoaded', function(event) {
         document.body.addEventListener('touchend', function(event) {
+          if (timer) {
+            clearTimeout(timer);
+            timer = null;
+          }
           navigator.vibrate(50);
-          color = color == '#ff0000' ? '#00ff00' : '#ff0000';
+          color = color == AIM_COLOR ? SHOT_COLOR : AIM_COLOR;
           drawCircle();
+          if (color == SHOT_COLOR) {
+            timer = setTimeout(function() {
+              color = AIM_COLOR;
+              drawCircle();
+            }, 3000);
+          }
         });
         canvas = document.getElementsByTagName('canvas')[0];
         context = canvas.getContext('2d');
