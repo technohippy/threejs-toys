@@ -29,7 +29,7 @@
             clearTimeout(timer);
             timer = null;
           }
-          navigator.vibrate(50);
+          if (navigator.vibrate) navigator.vibrate(50);
           color = color == AIM_COLOR ? SHOT_COLOR : AIM_COLOR;
           drawCircle();
           if (color == SHOT_COLOR) {
