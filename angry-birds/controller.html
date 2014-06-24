@@ -23,6 +23,17 @@
         context.fill();
       }
 
+      function toggleCircleColor() {
+        color = color == AIM_COLOR ? SHOT_COLOR : AIM_COLOR;
+        drawCircle();
+        if (color == SHOT_COLOR) {
+          timer = setTimeout(function() {
+            color = AIM_COLOR;
+            drawCircle();
+          }, 3000);
+        }
+      }
+
       document.addEventListener('DOMContentLoaded', function(event) {
         document.body.addEventListener('touchend', function(event) {
           if (timer) {
@@ -30,18 +41,18 @@
             timer = null;
           }
           if (navigator.vibrate) navigator.vibrate(50);
-          color = color == AIM_COLOR ? SHOT_COLOR : AIM_COLOR;
-          drawCircle();
-          if (color == SHOT_COLOR) {
-            timer = setTimeout(function() {
-              color = AIM_COLOR;
-              drawCircle();
-            }, 3000);
-          }
+          toggleCircleColor();
         });
         canvas = document.getElementsByTagName('canvas')[0];
         context = canvas.getContext('2d');
         drawCircle();
+      });
+
+      window.addEventListener('devicemotion', function(event) {
+        var threshold = 10;
+        if (threshold < Math.abs(event.acceleration.z)) {
+          toggleCircleColor();
+        }
       });
     </script>
   </head>
