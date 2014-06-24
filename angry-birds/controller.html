@@ -54,7 +54,8 @@
       });
 
       window.addEventListener('devicemotion', function(event) {
-        var threshold = 10;
+        //var threshold = 10;
+        var threshold = 5;
         if (threshold < Math.abs(event.acceleration.z)) {
           toggleCircleColor();
         }
