@@ -15,6 +15,7 @@
       var context;
       var color = '#ff0000';
       var timer;
+      var lastModified = new Date - 0;
 
       function drawCircle() {
         context.beginPath();
@@ -24,6 +25,8 @@
       }
 
       function toggleCircleColor() {
+        if (new Date - lastModified < 2 * 1000) return;
+
         color = color == AIM_COLOR ? SHOT_COLOR : AIM_COLOR;
         drawCircle();
         if (color == SHOT_COLOR) {
