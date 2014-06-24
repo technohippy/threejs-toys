@@ -454,6 +454,10 @@ AngryBirds.Game.prototype = {
     this.detector.detect();
   },
 
+  stopCameraDetector: function() {
+    if (this.detector) this.detector.stop();
+  },
+
   shot: function(impulseScalar) {
     this.shotCount += 1;
     $('score-value').textContent = this.shotCount; // TODO: この処理の場所を変えたい...
@@ -621,6 +625,17 @@ AngryBirds.Game.prototype = {
     $('help-menu-button').addEventListener('click', function(event) {
       this.showHelp();
     }.bind(this));
+    $('camera-button').addEventListener('click', function(event) {
+      $('camera-button').blur();
+      if (this.detector && this.detector.isDetecting) {
+        this.stopCameraDetector();
+        $('camera-button-label').textContent = 'OFF';
+      }
+      else {
+        this.startCameraDetector();
+        $('camera-button-label').textContent = 'ON';
+      }
+    }.bind(this));
     $('viewpoint-button').addEventListener('click', function(event) {
       $('viewpoint-button').blur();
       if (this.viewMode === AngryBirds.ViewMode.BIRDVIEW) {
@@ -733,8 +748,6 @@ AngryBirds.Game.prototype = {
       }
     }.bind(this));
     this.world.stop();
-// TODO
-//this.startCameraDetector();
   }
 };
 

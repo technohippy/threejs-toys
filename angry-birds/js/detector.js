@@ -99,6 +99,11 @@ Detector.prototype.start = function() {
 };
 
 Detector.prototype.detect = function() {
+  this.isDetecting = true;
   this.gc.drawImage(this.video, 0, 0, this.video.width, this.video.height);
   this.worker.postMessage(this.gc.getImageData(0, 0, this.video.width, this.video.height));
+};
+
+Detector.prototype.stop = function() {
+  this.isDetecting = false;
 };
