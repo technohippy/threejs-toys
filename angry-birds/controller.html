@@ -22,6 +22,7 @@
 
       document.addEventListener('DOMContentLoaded', function(event) {
         document.body.addEventListener('touchend', function(event) {
+          navigator.vibrate(50);
           color = color == '#ff0000' ? '#00ff00' : '#ff0000';
           drawCircle();
         });
