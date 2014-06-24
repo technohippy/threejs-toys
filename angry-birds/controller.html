@@ -27,6 +27,7 @@
       function toggleCircleColor() {
         var timestamp = new Date - 0;
         if (timestamp - lastModified < 2 * 1000) return;
+        if (navigator.vibrate) navigator.vibrate(50);
         lastModified = timestamp;
 
         color = color == AIM_COLOR ? SHOT_COLOR : AIM_COLOR;
@@ -45,7 +46,6 @@
             clearTimeout(timer);
             timer = null;
           }
-          if (navigator.vibrate) navigator.vibrate(50);
           toggleCircleColor();
         });
         canvas = document.getElementsByTagName('canvas')[0];
