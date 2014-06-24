@@ -25,7 +25,9 @@
       }
 
       function toggleCircleColor() {
-        if (new Date - lastModified < 2 * 1000) return;
+        var timestamp = new Date - 0;
+        if (timestamp - lastModified < 2 * 1000) return;
+        lastModified = timestamp;
 
         color = color == AIM_COLOR ? SHOT_COLOR : AIM_COLOR;
         drawCircle();
