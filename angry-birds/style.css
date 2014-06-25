@@ -157,6 +157,9 @@ menu[type="toolbar"] button img {
   padding:20px;
   box-shadow:0 0 20px black;
 }
+#prepare-camera-dialog-url {
+  text-decoration:underline;
+}
 #stage-clear {
   position:absolute;
   z-index:10;
