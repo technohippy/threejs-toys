@@ -16,7 +16,7 @@ function isSmartphone() {
 
 window.addEventListener('load', function() {
   if (isSmartphone()) {
-    window.location = window.location.replace('index.html', '') + 'controller.html';
+    window.location = window.location.pathname.replace('index.html', '') + 'controller.html';
   }
   AngryBirds.Game.start({stages:[
     new AngryBirds.Stage1(),
