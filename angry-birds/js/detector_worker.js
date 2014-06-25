@@ -42,7 +42,7 @@ addEventListener('message', function(event) {
     redPoints:{points:redPoints, center:center, centerAverage:centerAverage, size:redPoints.length},
     greenPoints:{points:greenPoints, size:greenPoints.length},
     bluePoints:{points:bluePoints, size:bluePoints.length},
-    isShot:25 < bluePoints.length && bluePoints.length > redPoints.length
+    isShot:25 < bluePoints.length && redPoints.length < bluePoints.length
   });
 });
 

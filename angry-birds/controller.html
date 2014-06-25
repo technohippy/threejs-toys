@@ -17,25 +17,28 @@
       var timer;
       var lastModified = new Date - 0;
 
-      function drawCircle() {
+      function drawMarker() {
+        /*
         context.beginPath();
         context.arc(320, 320, 320, 0, 2 * Math.PI, false);
         context.fillStyle = color;
         context.fill();
+        */
+        document.body.style.backgroundColor = color;
       }
 
-      function toggleCircleColor() {
+      function toggleMarkerColor() {
         var timestamp = new Date - 0;
         if (timestamp - lastModified < 2 * 1000) return;
         if (navigator.vibrate) navigator.vibrate(50);
         lastModified = timestamp;
 
         color = color == AIM_COLOR ? SHOT_COLOR : AIM_COLOR;
-        drawCircle();
+        drawMarker();
         if (color == SHOT_COLOR) {
           timer = setTimeout(function() {
             color = AIM_COLOR;
-            drawCircle();
+            drawMarker();
           }, 3000);
         }
       }
@@ -46,11 +49,11 @@
             clearTimeout(timer);
             timer = null;
           }
-          toggleCircleColor();
+          toggleMarkerColor();
         });
         canvas = document.getElementsByTagName('canvas')[0];
         context = canvas.getContext('2d');
-        drawCircle();
+        drawMarker();
       });
 
       window.addEventListener('devicemotion', function(event) {
@@ -59,12 +62,13 @@
         //var threshold = 10;
         var threshold = 5;
         if (threshold < Math.abs(event.acceleration.z)) {
-          toggleCircleColor();
+          toggleMarkerColor();
         }
       });
     </script>
   </head>
   <body>
     <canvas width="640" height="640" style="margin:auto;"></canvas>
+    <img src="image/eagle_grayscale.png" style="position:absolute; bottom:0; left:0; width:100%;">
   </body>
 </html>
