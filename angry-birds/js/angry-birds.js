@@ -203,6 +203,7 @@ AngryBirds.Game = function(opts) {
   this.bird = null;
   this.birdStartPosition = new THREE.Vector3(0, 2.5/*bar*/ + 2/*arm*/, 0);
   this.piggy = null;
+  this.tracks = [];
 
   this.isBirdDragging = false;
   this.isWorldDragging = false;
@@ -334,6 +335,28 @@ AngryBirds.Game.prototype = {
     }));
     slingshot.castShadow = true;
     return slingshot;
+  },
+
+  addTrack: function() {
+    var radius = 0.05 + 0.025 * Math.random();
+    var sphereGeometry = new THREE.SphereGeometry(radius, 3, 3);
+    var sphereMaterial = new THREE.MeshLambertMaterial({
+      color:0xffffff,
+      blending: THREE.AdditiveBlending,
+      transparent: true
+    });
+    var sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    sphereMesh.position.copy(this.bird.threeMesh.position);
+    this.world.threeScene.add(sphereMesh);
+
+    this.tracks.push(sphereMesh);
+  },
+
+  removeTracks: function() {
+    this.tracks.forEach(function(track) {
+      this.world.threeScene.remove(track);
+    }.bind(this));
+    this.tracks = [];
   },
 
   addSmoke: function(piggy) {
@@ -473,6 +496,8 @@ AngryBirds.Game.prototype = {
   },
 
   shot: function(impulseScalar) {
+    this.removeTracks();
+
     this.shotCount += 1;
     $('score-value').textContent = this.shotCount; // TODO: この処理の場所を変えたい...
     if (1 < this.shotCount) $('score-unit').textContent = 'shots';
@@ -504,6 +529,7 @@ AngryBirds.Game.prototype = {
   // TODO
   clearStage: function(stage) {
     this.clearNextStageTimer();
+    this.removeTracks();
     this.setGameMode(AngryBirds.GameMode.CLEAR_STAGE);
     var nextStageIndex = stage.index + 1;
     if (this.stages.length <= nextStageIndex) {
@@ -773,7 +799,11 @@ AngryBirds.Game.prototype = {
         this.world.threeCamera.position.set(0 + radius * Math.cos(angle), 7 + 3 * Math.cos(angle * 2), 43 + radius * Math.sin(angle));
         this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 48));
       }
-      else if (this.viewMode === AngryBirds.ViewMode.BIRDVIEW) {
+      else if (this.gameMode === AngryBirds.GameMode.FLYING) {
+        this.addTrack();
+      }
+
+      if (this.viewMode === AngryBirds.ViewMode.BIRDVIEW) {
         this.bird.threeMesh.material.opacity = 0.5;
         if (this.gameMode === AngryBirds.GameMode.SIGHT_SETTING) {
           this.slingshot.material.opacity = 0.5;
