@@ -2,10 +2,16 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
     <style>
       body {
         margin:0;
         padding:0;
+        color:white;
+        text-align:center;
+      }
+      a {
+        color:white;
       }
       img {
         position:absolute; 
@@ -17,19 +23,11 @@
     <script>
       var AIM_COLOR = '#ff0000';
       var SHOT_COLOR = '#0000ff';
-      var canvas;
-      var context;
       var color = AIM_COLOR;
       var timer;
       var lastModified = new Date - 0;
 
       function drawMarker() {
-        /*
-        context.beginPath();
-        context.arc(320, 320, 320, 0, 2 * Math.PI, false);
-        context.fillStyle = color;
-        context.fill();
-        */
         document.body.style.backgroundColor = color;
       }
 
@@ -57,8 +55,6 @@
           }
           toggleMarkerColor();
         });
-        canvas = document.getElementsByTagName('canvas')[0];
-        context = canvas.getContext('2d');
         drawMarker();
       });
 
@@ -74,7 +70,11 @@
     </script>
   </head>
   <body>
-    <canvas width="640" height="640" style="margin:auto;"></canvas>
-    <img src="image/eagle_grayscale.png" style="">
+    ウェブカメラのあるPCで以下のURLを開き<br/>
+    カメラへのアクセスを許可してください<br/>
+    http://technohippy.github.io/threejs-toys/angry-birds/#onetap<br/><br/>
+    この画面をウェブカメラに向けて狙いを定め<br/>
+    狙いが定まったら画面をタップしてください
+    <img src="image/eagle_grayscale.png">
   </body>
 </html>
