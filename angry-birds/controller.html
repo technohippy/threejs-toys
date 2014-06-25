@@ -35,6 +35,10 @@
       function toggleMarkerColor() {
         var timestamp = new Date - 0;
         if (timestamp - lastModified < 2 * 1000) return;
+        if (timer) {
+          clearTimeout(timer);
+          timer = null;
+        }
         if (navigator.vibrate) navigator.vibrate(50);
         lastModified = timestamp;
 
@@ -50,10 +54,6 @@
 
       document.addEventListener('DOMContentLoaded', function(event) {
         document.body.addEventListener('touchend', function(event) {
-          if (timer) {
-            clearTimeout(timer);
-            timer = null;
-          }
           toggleMarkerColor();
         });
         drawMarker();
@@ -74,8 +74,8 @@
     ウェブカメラのあるPCで以下のURLを開き<br/>
     カメラへのアクセスを許可してください<br/>
     http://technohippy.github.io/threejs-toys/angry-birds/#onetap<br/><br/>
-    この画面をウェブカメラに向けて狙いを定め<br/>
-    狙いが定まったら画面をタップしてください
+    その後、この画面をウェブカメラに向けて<br/>
+    狙いを定め、定まったら画面をタップしてください
     <img src="image/eagle_grayscale.png">
   </body>
 </html>
