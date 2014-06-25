@@ -720,19 +720,19 @@ AngryBirds.Game.prototype = {
     }.bind(this));
     $('camera-button').addEventListener('click', function(event) {
       $('camera-button').blur();
-      $('prepare-camera').className = 'show';
-      $('prepare-camera-dialog-url').textContent = location.protocol + '//' + location.hostname + location.pathname;
-    }.bind(this));
-    $('prepare-camera').addEventListener('click', function(event) {
-      $('prepare-camera').className = 'hide';
       if (this.detector && this.detector.isDetecting) {
         this.stopCameraDetector();
         $('camera-button-label').textContent = 'OFF';
       }
       else {
-        this.startCameraDetector();
-        $('camera-button-label').textContent = 'ON';
+        $('prepare-camera').className = 'show';
+        $('prepare-camera-dialog-url').textContent = location.protocol + '//' + location.hostname + location.pathname;
       }
+    }.bind(this));
+    $('prepare-camera').addEventListener('click', function(event) {
+      $('prepare-camera').className = 'hide';
+      this.startCameraDetector();
+      $('camera-button-label').textContent = 'ON';
     }.bind(this));
     $('pause-button').addEventListener('click', function(event) {
       $('pause-button').blur();
