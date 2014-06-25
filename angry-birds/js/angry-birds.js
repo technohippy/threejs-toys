@@ -510,6 +510,8 @@ AngryBirds.Game.prototype = {
   },
 
   togglePause: function() {
+    if (this.gameMode !== AngryBirds.GameMode.FLYING) return;
+
     if (this.world.isStopped) {
       this.unpause();
     }
@@ -827,11 +829,7 @@ AngryBirds.Game.prototype = {
         this.world.threeCamera.position.set(0 + radius * Math.cos(angle), 7 + 3 * Math.cos(angle * 2), 43 + radius * Math.sin(angle));
         this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 48));
       }
-      else if (this.gameMode === AngryBirds.GameMode.FLYING) {
-        this.addTrack();
-      }
-
-      if (this.viewMode === AngryBirds.ViewMode.BIRDVIEW) {
+      else if (this.viewMode === AngryBirds.ViewMode.BIRDVIEW) {
         this.bird.threeMesh.material.opacity = 0.5;
         if (this.gameMode === AngryBirds.GameMode.SIGHT_SETTING) {
           this.slingshot.material.opacity = 0.5;
@@ -852,6 +850,10 @@ AngryBirds.Game.prototype = {
         this.slingshot.material.opacity = 1;
         this.world.threeCamera.position.set(-35, 15, 30);
         this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 30));
+      }
+
+      if (this.gameMode === AngryBirds.GameMode.FLYING) {
+        this.addTrack();
       }
     }.bind(this));
     this.world.stop();
