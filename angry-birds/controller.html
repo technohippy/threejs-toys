@@ -7,6 +7,8 @@
       body {
         margin:0;
         padding:0;
+        width:100vw;
+        height:100vh;
         color:white;
         text-align:center;
         font-size:0.8em;
@@ -54,6 +56,7 @@
 
       document.addEventListener('DOMContentLoaded', function(event) {
         document.body.addEventListener('touchend', function(event) {
+        //document.body.addEventListener('click', function(event) {
           toggleMarkerColor();
         });
         drawMarker();
