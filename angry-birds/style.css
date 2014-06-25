@@ -56,7 +56,7 @@ header {
 header button {
   border:none;
   background:rgba(255,255,255,0.2);
-  width:75px;
+  width:80px;
 }
 header button img {
   width:20px;
@@ -64,12 +64,13 @@ header button img {
 }
 #scores {
   margin:0;
-  padding:20px;
+  padding:5px 20px;
   position:absolute;
   top:0;
   right:0;
   font-weight:bold;
-  text-shadow:0 0 2px #ffffff;
+  margin-top:20px;
+  background:rgba(255,255,255,0.2);
 }
 #scores dt {
   float:left;

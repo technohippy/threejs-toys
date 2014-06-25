@@ -185,7 +185,7 @@ AngryBirds.Stage.prototype = {
 
 AngryBirds.Game = function(opts) {
   if (!opts.stages) throw 'stages is the mandatory option.';
-  this.setHiScore(parseInt(localStorage.getItem('hiscore'), 10) || 0);
+  this.setHiScore(parseInt(localStorage.getItem('hiscore'), 10) || 999);
   this.shotCount = 0;
   this.stages = opts.stages;
   this.stages.forEach(function(stage, index) {
@@ -509,6 +509,27 @@ AngryBirds.Game.prototype = {
     this.setGameMode(AngryBirds.GameMode.FLYING);
   },
 
+  togglePause: function() {
+    if (this.world.isStopped) {
+      this.unpause();
+    }
+    else {
+      this.pause();
+    }
+  },
+
+  pause: function() {
+    this.world.stop();
+    $('pause-button-icon').src = 'image/icon/start.png';
+    $('pause-button-label').textContent = 'Start';
+  },
+
+  unpause: function() {
+    this.world.isStopped = false;
+    $('pause-button-icon').src = 'image/icon/stop.png';
+    $('pause-button-label').textContent = 'Pause';
+  },
+
   isHiScore: function(score) {
     return this.hiScore === 0 || score < this.hiScore;
   },
@@ -651,6 +672,9 @@ AngryBirds.Game.prototype = {
         this.setViewMode(AngryBirds.ViewMode.BIRDVIEW);
       }
     }
+    else if (event.charCode === 112) { // 'p'
+      this.togglePause();
+    }
   },
 
   startSmartphoneMode: function() {
@@ -702,6 +726,10 @@ AngryBirds.Game.prototype = {
         this.startCameraDetector();
         $('camera-button-label').textContent = 'ON';
       }
+    }.bind(this));
+    $('pause-button').addEventListener('click', function(event) {
+      $('pause-button').blur();
+      this.togglePause();
     }.bind(this));
     $('viewpoint-button').addEventListener('click', function(event) {
       $('viewpoint-button').blur();
