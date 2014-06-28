@@ -8,6 +8,8 @@ AngryBirds.Texture.ROCK:
   http://www.cgtextures.com/texview.php?id=62098&PHPSESSID=j7tc0nn8g00boqdrqnqg3iflt4
 AngryBirds.Texture.CLOD:
   http://www.mayang.com/textures/Architectural/images/Brick/brick_closeup_5132569.JPG
+AngryBirds.Texture.LEATHER:
+  http://www.wildtextures.com/free-textures/brown-leather-texture/
 icons
   http://www.icojam.com/blog/?p=674
 

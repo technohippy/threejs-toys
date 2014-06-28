@@ -11,6 +11,7 @@ AngryBirds.Texture = {
   BOARD: THREE.ImageUtils.loadTexture('image/board.jpg'),
   POST: THREE.ImageUtils.loadTexture('image/post.jpg'),
   ICE: THREE.ImageUtils.loadTexture('image/ice.jpg'),
+  LEATHER: THREE.ImageUtils.loadTexture('image/leather.png'),
   CLOD: THREE.ImageUtils.loadTexture('image/brick_closeup_5132569.JPG'),
   ROCK: THREE.ImageUtils.loadTexture('image/RockSmooth0076_5_thumblarge.jpg'),
   get GRASS() {
@@ -185,7 +186,7 @@ AngryBirds.Stage.prototype = {
 
 AngryBirds.Game = function(opts) {
   if (!opts.stages) throw 'stages is the mandatory option.';
-  this.setHiScore(parseInt(localStorage.getItem('hiscore'), 10) || 999);
+  this.setHiScore(parseInt(localStorage.getItem('hiscore'), 10) || 9999);
   this.shotCount = 0;
   this.stages = opts.stages;
   this.stages.forEach(function(stage, index) {
@@ -242,6 +243,52 @@ AngryBirds.Game.prototype = {
     this.bird.position.copy(this.birdStartPosition);
     this.bird.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
     this.world.add(this.bird);
+
+    // rubber
+    var leftRubberGeometry = new THREE.Geometry();
+    var basePoint = new THREE.Vector3();
+    basePoint.y = 2 + 2.5 + 0.2 - 0.1;
+    basePoint.x = 2 - 0.2;
+    leftRubberGeometry.vertices.push(basePoint);
+    leftRubberGeometry.vertices.push(new THREE.Vector3(
+      this.bird.position.x + 0.5,
+      this.bird.position.y,
+      this.bird.position.z
+    ));
+    this.leftRubber = new THREE.Line(leftRubberGeometry, new THREE.LineBasicMaterial({
+      color:0x999966,
+      linewidth:2
+    }));
+    this.world.threeScene.add(this.leftRubber);
+
+    var rightRubberGeometry = new THREE.Geometry();
+    var basePoint = new THREE.Vector3();
+    basePoint.y = 2 + 2.5 + 0.2 - 0.1;
+    basePoint.x = -2 + 0.2;
+    rightRubberGeometry.vertices.push(basePoint);
+    rightRubberGeometry.vertices.push(new THREE.Vector3(
+      this.bird.position.x - 0.5,
+      this.bird.position.y,
+      this.bird.position.z
+    ));
+    this.rightRubber = new THREE.Line(rightRubberGeometry, new THREE.LineBasicMaterial({
+      color:0x999966,
+      linewidth:2
+    }));
+    this.world.threeScene.add(this.rightRubber);
+
+    var pouchGeometry = new THREE.SphereGeometry(0.55, 8, 6, 0, Math.PI, -Math.PI/2 + Math.PI/8, -Math.PI/4);
+    var pouchMaterial = new THREE.MeshPhongMaterial({
+      map:AngryBirds.Texture.LEATHER, 
+      ambient:0x999999,
+      side:THREE.DoubleSide,
+      transparent:true,
+      blending:THREE.NormalBlending,
+      depthTest:false
+    });
+    this.pouch = new THREE.Mesh(pouchGeometry, pouchMaterial);
+    this.pouch.position.copy(this.birdStartPosition);
+    this.world.threeScene.add(this.pouch);
 
     this.constructStage();
   },
@@ -301,7 +348,8 @@ AngryBirds.Game.prototype = {
         map:AngryBirds.Texture.BIRD, 
         ambient:0x999999,
         transparent:true,
-        blending:THREE.NormalBlending
+        blending:THREE.NormalBlending,
+        depthTest:false
       }),
       cannonMaterial:this.world.cannonWorld.defaultMaterial
     });
@@ -321,7 +369,6 @@ AngryBirds.Game.prototype = {
     bar.position.set(0, 2.5/2, 0);
 
     var armGeometry = new THREE.TorusGeometry(2, 0.2, 8, 16, Math.PI);
-    //var armGeometry = new THREE.TorusGeometry(2, 0.2, 8, 16, -Math.PI);
     var arm = new THREE.Mesh(armGeometry);
     arm.position.set(0, 2.5+2+0.2-0.03, 0);
     arm.quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI);
@@ -435,11 +482,16 @@ AngryBirds.Game.prototype = {
     var xAxis = new THREE.Vector3(1, 0, 0);
     var pitchAngle = dy / 5000 * Math.PI;
     var pitchMatrix = new THREE.Matrix4().makeRotationAxis(xAxis, pitchAngle);
+    var backupCameraDirection = new THREE.Vector3().copy(this.cameraDirection);
     this.cameraDirection.applyMatrix4(yawMatrix);
     this.cameraDirection.applyMatrix4(pitchMatrix);
+    if (this.cameraDirection.z < 2.3) {
+      this.cameraDirection.copy(backupCameraDirection);
+      return;
+    }
     this.world.threeCamera.position.copy(new THREE.Vector3().copy(this.bird.threeMesh.position).sub(this.cameraDirection));
     this.world.threeCamera.lookAt(this.bird.threeMesh.position);
-    this.slingshot.lookAt(new THREE.Vector3(this.cameraDirection.x, 0, this.cameraDirection.z).add(this.slingshot.position));
+//    this.slingshot.lookAt(new THREE.Vector3(this.cameraDirection.x, 0, this.cameraDirection.z).add(this.slingshot.position));
   },
 
   dragBird: function(event) {
@@ -483,7 +535,7 @@ AngryBirds.Game.prototype = {
           this.cameraDirection.applyMatrix4(pitchMatrix);
           this.world.threeCamera.position.copy(new THREE.Vector3().copy(this.bird.threeMesh.position).sub(this.cameraDirection));
           this.world.threeCamera.lookAt(this.bird.threeMesh.position);
-          this.slingshot.lookAt(new THREE.Vector3(this.cameraDirection.x, 0, this.cameraDirection.z).add(this.slingshot.position));
+//          this.slingshot.lookAt(new THREE.Vector3(this.cameraDirection.x, 0, this.cameraDirection.z).add(this.slingshot.position));
         }
       }.bind(this));
       this.detector.start();
@@ -726,7 +778,8 @@ AngryBirds.Game.prototype = {
       }
       else {
         $('prepare-camera').className = 'show';
-        $('prepare-camera-dialog-url').textContent = location.protocol + '//' + location.hostname + location.pathname;
+        $('prepare-camera-dialog-url').textContent = 
+          location.protocol + '//' + location.hostname + location.pathname;
       }
     }.bind(this));
     $('prepare-camera').addEventListener('click', function(event) {
@@ -838,6 +891,7 @@ AngryBirds.Game.prototype = {
         this.bird.threeMesh.material.opacity = 0.5;
         if (this.gameMode === AngryBirds.GameMode.SIGHT_SETTING) {
           this.slingshot.material.opacity = 0.5;
+          this.pouch.material.opacity = 0.5;
           var behindBird = new THREE.Vector3().copy(this.bird.threeMesh.position
             ).sub(this.cameraDirection);
           this.world.threeCamera.position.copy(behindBird);
@@ -845,6 +899,7 @@ AngryBirds.Game.prototype = {
         }
         else if (this.getCurrentStage().piggies.length != 0) {
           this.slingshot.material.opacity = 1;
+          this.pouch.material.opacity = 1;
           this.world.threeCamera.position.copy(this.bird.threeMesh.position);
           // TODO: piggiesの重心とかにする？
           this.world.threeCamera.lookAt(this.getCurrentStage().piggies[0].threeMesh.position);
@@ -853,9 +908,43 @@ AngryBirds.Game.prototype = {
       else if (this.viewMode === AngryBirds.ViewMode.SIDEVIEW) {
         this.bird.threeMesh.material.opacity = 1;
         this.slingshot.material.opacity = 1;
+        this.pouch.material.opacity = 1;
         this.world.threeCamera.position.set(-35, 15, 30);
         this.world.threeCamera.lookAt(new THREE.Vector3(0, 5, 30));
       }
+
+      if (0 < this.bird.threeMesh.position.z) {
+        this.leftRubber.geometry.vertices[1].set(
+          0.55,
+          this.leftRubber.geometry.vertices[0].y,
+          0
+        );
+        this.rightRubber.geometry.vertices[1].set(
+          -0.55,
+          this.rightRubber.geometry.vertices[0].y,
+          0
+        );
+        this.pouch.position.set(
+          0,
+          this.rightRubber.geometry.vertices[0].y,
+          0
+        );
+      }
+      else {
+        this.leftRubber.geometry.vertices[1].set(
+          this.bird.threeMesh.position.x + 0.5,
+          this.bird.threeMesh.position.y,
+          this.bird.threeMesh.position.z
+        );
+        this.rightRubber.geometry.vertices[1].set(
+          this.bird.threeMesh.position.x - 0.5,
+          this.bird.threeMesh.position.y,
+          this.bird.threeMesh.position.z
+        );
+        this.pouch.position.copy(this.bird.threeMesh.position);
+      }
+      this.leftRubber.geometry.verticesNeedUpdate = true;
+      this.rightRubber.geometry.verticesNeedUpdate = true;
 
       if (this.gameMode === AngryBirds.GameMode.FLYING) {
         this.addTrack();
