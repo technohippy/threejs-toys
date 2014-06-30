@@ -472,6 +472,7 @@ AngryBirds.Game.prototype = {
   },
 
   dragWorld: function(event) {
+    event.preventDefault();
     var dx = this.dragStartMousePosition.x - event.clientX;
     var dy = this.dragStartMousePosition.y - event.clientY;
     this.dragStartMousePosition = new THREE.Vector3(event.clientX, event.clientY, 0);
@@ -495,6 +496,7 @@ AngryBirds.Game.prototype = {
   },
 
   dragBird: function(event) {
+    event.preventDefault();
     var currentMousePosition = new THREE.Vector3(event.clientX, event.clientY, 0);
     var dist = this.dragStartMousePosition.distanceTo(currentMousePosition) / 600;
     if (0.4 < dist) dist = 0.4;
