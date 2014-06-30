@@ -202,7 +202,7 @@ AngryBirds.Game = function(opts) {
   this.slingshot = null;
   this.ground = null;
   this.bird = null;
-  this.birdStartPosition = new THREE.Vector3(0, 2.5/*bar*/ + 2/*arm*/, 0);
+  this.birdStartPosition = new THREE.Vector3(0, 2.5/*bar*/ + 2/*arm*/ + 0.1, 0);
   this.piggy = null;
   this.tracks = [];
 
