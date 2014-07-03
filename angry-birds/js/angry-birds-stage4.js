@@ -37,7 +37,7 @@ AngryBirds.Stage4.prototype.constructOn = function(world) {
   world.add(this.createBoard(
     {width:2, height:1, depth:2}, 
     {x:this.denPosition.x, y:0.5, z:this.denPosition.z}, 
-    {fixed:true, map:AngryBirds.Texture.CLOD, bumpMap:AngryBirds.Texture.CLOD}
+    {fixed:true, map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
   ));
 
   var piggy1 = new AngryBirds.Piggy(0.6, {mass:0.5, angularDamping:0.8, ambient:0x999999});
@@ -48,19 +48,19 @@ AngryBirds.Stage4.prototype.constructOn = function(world) {
   world.add(this.createBoard(
     {width:0.5, height:2, depth:10}, 
     {x:this.denPosition.x-4, y:20, z:this.denPosition.z}, 
-    {fixed:true, map:AngryBirds.Texture.CLOD, bumpMap:AngryBirds.Texture.CLOD}
+    {fixed:true, map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
   ));
 
   world.add(this.createBoard(
     {width:0.5, height:2, depth:10}, 
     {x:this.denPosition.x+4, y:20, z:this.denPosition.z}, 
-    {fixed:true, map:AngryBirds.Texture.CLOD, bumpMap:AngryBirds.Texture.CLOD}
+    {fixed:true, map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
   ));
 
   world.add(this.createBoard(
     {width:10, height:1, depth:10}, 
     {x:this.denPosition.x, y:19, z:this.denPosition.z}, 
-    {fixed:true, map:AngryBirds.Texture.CLOD, bumpMap:AngryBirds.Texture.CLOD}
+    {fixed:true, map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
   ));
 
   for (dx = -4; dx <= 4; dx += 8) {
@@ -68,7 +68,7 @@ AngryBirds.Stage4.prototype.constructOn = function(world) {
       world.add(this.createBoard(
         {width:1, height:20, depth:1}, 
         {x:this.denPosition.x+dx, y:20/2-1, z:this.denPosition.z+dz}, 
-        {fixed:true, map:AngryBirds.Texture.CLOD, bumpMap:AngryBirds.Texture.CLOD}
+        {fixed:true, map:AngryBirds.Texture.ROCK, bumpMap:AngryBirds.Texture.ROCK}
       ));
     }
   }
