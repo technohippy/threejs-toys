@@ -5,7 +5,7 @@ var AngryBirds = AngryBirds || {};
 
 AngryBirds.Stage1 = function(denPosition) {
   AngryBirds.Stage.call(this);
-  this.denPosition =  denPosition || {x:0, z:48};
+  this.denPosition = denPosition || {x:0, z:48};
 };
 
 AngryBirds.Stage1.prototype = Object.create(AngryBirds.Stage.prototype);

@@ -348,8 +348,8 @@ AngryBirds.Game.prototype = {
         map:AngryBirds.Texture.BIRD, 
         ambient:0x999999,
         transparent:true,
-        blending:THREE.NormalBlending,
-        depthTest:false
+        blending:THREE.NormalBlending//,
+//        depthTest:false
       }),
       cannonMaterial:this.world.cannonWorld.defaultMaterial
     });
