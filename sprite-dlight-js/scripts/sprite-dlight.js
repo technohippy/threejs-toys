@@ -13,7 +13,7 @@ window.addEventListener('DOMContentLoaded', function(event) {
     filter(originalContext, embossContext, [
       [1,  1,  1],
       [1,  0, -1],
-      [0, -1, -1],
+      [-1, -1, -1],
     ]);
     make3d(original, emboss);
   });
